@@ -1,0 +1,20 @@
+{% extends "header.html" %}
+{% block main %}
+<center>
+<h1>Shifts</h1>
+<h2>{{ error }}</h2>
+<form action="/shifts" method="POST">
+{% csrf_token %}
+<button type="sumbit" name="event" value="clock_in">Clock in</button>
+<button type="sumbit" name="event" value="clock_out">Clock out</button>
+<button type="sumbit" name="event" value="break_start">Clock in</button>
+<button type="sumbit" name="event" value="break_end">Clock out</button>
+</form>
+<br/>
+<form action="/shifts">
+{% csrf_token %}
+<input type="textarea" name="desc" placeholder="Task"></input>
+<button type="sumbit" name="event" value="task">Sumbit</button>
+</form>
+</center>
+{% endblock %}

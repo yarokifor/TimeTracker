@@ -1,0 +1,17 @@
+<html>
+<head>
+</head>
+<body>
+<h1>{% block title %}Time{% endblock %}</h1>
+<h2>
+{% if error == "invalid_login"%}
+Your password is not good.
+{% elif error == "apple" %}
+This is a test.
+{% endif  %}
+</h2>
+{% block main %}
+{% endblock %}
+</body>
+</html>
+
