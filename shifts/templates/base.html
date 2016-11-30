@@ -8,8 +8,16 @@
 Your password is not good.
 {% elif error == "apple" %}
 This is a test.
-{% endif  %}
+{% endif %}
 </h2>
+
+{% if user.is_authenticated == True %}
+<a href="/shifts">Shifts</a>
+<a href="/export">Export</a>
+<a href="/profile">Profile</a>
+<a href="/logout">Logout</a>
+{% endif %}
+
 {% block main %}
 {% endblock %}
 </body>

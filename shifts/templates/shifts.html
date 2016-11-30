@@ -25,9 +25,14 @@ Unknow event: {{ last_event.event }} @{{ last_event.time }}
 {% endfor %}
 </form>
 <br/>
-<form action="/shifts">
+<form action="/shifts" method="POST">
 {% csrf_token %}
 <input type="textarea" name="desc" placeholder="Task"></input>
 <button type="sumbit" name="event" value="task">Sumbit</button>
 </form>
+
+<h4>Tasks</h4>
+{% for task in tasks %}
+<div class="task">{{ task.description }}</div><br/>
+{% endfor %}
 {% endblock %}
