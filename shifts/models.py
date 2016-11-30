@@ -6,10 +6,10 @@ class Shift(models.Model):
 
 class Event(models.Model):
     EVENTS = (
-        ("IN","CLOCK_IN"),
-        ("OUT","CLOCK_OUT"),
-        ("BST","BREAK_START"),
-        ("BEN","BREAK_END"),
+        ("IN" ,"Clock in"),
+        ("OUT","Clock out"),
+        ("BST","Break start"),
+        ("BEN","Break end"),
         )
     shift = models.ForeignKey(Shift, on_delete = models.CASCADE) 
     time = models.DateTimeField()

@@ -1,14 +1,28 @@
-{% extends "header.html" %}
+{% extends "base.html" %}
+{% block title %}
+Shifts
+{% endblock %}
 {% block main %}
-<center>
-<h1>Shifts</h1>
-<h2>{{ error }}</h2>
+<h3>
+{% if last_event == None %}
+Welcome new user!
+{% elif last_event.event == "IN" %}
+Clocked in @{{ last_event.time }}
+{% elif last_event.event == "OUT" %}
+Clocked out @{{ last_event.time }}
+{% elif last_event.event == "BST" %}
+Break start @{{ last_event.time }}
+{% elif last_event.event == "BEN" %}
+Break end @{{ last_event.time }}
+{% else %}
+Unknow event: {{ last_event.event }} @{{ last_event.time }}
+{% endif %}
+</h3>
 <form action="/shifts" method="POST">
 {% csrf_token %}
-<button type="sumbit" name="event" value="clock_in">Clock in</button>
-<button type="sumbit" name="event" value="clock_out">Clock out</button>
-<button type="sumbit" name="event" value="break_start">Clock in</button>
-<button type="sumbit" name="event" value="break_end">Clock out</button>
+{% for choice in event_choices %}
+<button type="sumbit" name="event" value="{{ choice.0 }}">{{ choice.1 }}</button>
+{% endfor %}
 </form>
 <br/>
 <form action="/shifts">
@@ -16,5 +30,4 @@
 <input type="textarea" name="desc" placeholder="Task"></input>
 <button type="sumbit" name="event" value="task">Sumbit</button>
 </form>
-</center>
 {% endblock %}
