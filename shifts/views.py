@@ -5,7 +5,7 @@ from django.http import HttpResponseRedirect
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
-from shifts.models import Shift, Event, Task
+from shifts.models import Shift, Event
 import bleach
 import datetime
 
@@ -33,30 +33,35 @@ def logout_handler(request):
 
 @login_required 
 def shifts(request):
-    last_shift = None
-    last_event = Event.objects.filter(shift__user = request.user).order_by("time").last()
+    last_shift = Shift.objects.filter(user = request.user).last()
+    last_event = Event.objects.filter(user = request.user).last()
 
-    if last_event != None:
-        last_shift = last_event.shift
-    
     if request.method == 'POST':
-        event = request.POST['event']
-        if event == 'task':
-            task = Task(shift = last_shift, description = bleach.clean(request.POST['desc']))
-            task.save()
-        else:
-            if event in [item[0] for item in Event.EVENTS]:
-                if event == 'IN':
-                    last_shift = Shift(user = request.user)
-                    last_shift.save()
-                last_event = Event(shift = last_shift, event = event, time = datetime.datetime.now())
+        event = request.POST.get("event")
+        if event == "task" and last_shift != None:
+            tasks = last_shift.tasks_completed
+            task = bleach.clean(request.POST['desc']).replace('`','\'')
+            if tasks == "":
+                last_shift.tasks_completed = '`%s`' % task
+            else:
+                last_shift.tasks_completed = '%s,`%s`' % (tasks, task)
+        elif event in Event.REQUIRED_EVENT.keys():
+            last_event = Event(time = datetime.datetime.now(), event = event, user = request.user)
+            if event == "IN":
                 last_event.save()
+                last_shift = Shift(user = request.user, start = last_event, tasks_completed = "")
+            elif event == "OUT":
+                last_shift.end = last_event
+
+            last_event.save()
+        last_shift.save()
              
     context = {
         "error": request.GET.get("error"),
+        "last_shift": last_shift,
         "last_event": last_event,
-        "tasks": Task.objects.filter(shift = last_shift),
         "event_choices": Event.EVENTS,
+        "possible_events": Event.REQUIRED_EVENT[last_event.event if last_event != None else None]
     }
 
     return render(request, 'shifts.html', context)

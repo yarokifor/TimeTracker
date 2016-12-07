@@ -4,10 +4,11 @@ from django.contrib.auth.models import User
 
 class Event(models.Model):
     REQUIRED_EVENT = {
-        'IN': ('OUT', None),
-        'OUT': ('IN','BEN'),
-        'BST': ('IN','BEN'),
-        'BEN': ('BIN'),    
+        'OUT': ('IN'),
+        None: ('IN'),
+        'IN': ('OUT','BST'),
+        'BEN': ('OUT','BST'),
+        'BST': ('BEN'),
     }
     EVENTS = (
         ('IN' ,'Clock in'),
@@ -24,8 +25,9 @@ class Event(models.Model):
         return Event.objects.filter(user = user).order_by('time').last()
         
     def save(self, *args, **kwargs):
-        if not self.last_event(user).event in self.REQUIRED_EVENT[self.event]:
-            raise DataError('To "%s" you must "%s" first.' % (self.event, REQUIRED_EVENT[self.event]))
+        last_event = self.last_event(self.user)
+        if last_event != None and last_event.id != self.id and not self.event in self.REQUIRED_EVENT[last_event.event]:
+            raise DataError('To "%s" you must "%s" first and not "%s"' % (self.event, self.REQUIRED_EVENT[last_event.event], last_event.event))
 
         super(Event, self).save(*args, **kwargs)
 

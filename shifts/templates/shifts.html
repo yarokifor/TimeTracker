@@ -13,16 +13,18 @@ Welcome new user!
 <form action="/shifts" method="POST">
 {% csrf_token %}
 {% for choice in event_choices %}
-<button type="sumbit" {% if not choice in required_event%}disabled{% endif %} name="event" value="{{ choice.0 }}">{{ choice.1 }}</button>
+<button type="sumbit" {% if not choice.0 in possible_events %}disabled{% endif %} name="event" value="{{ choice.0 }}">{{ choice.1 }}</button>
 {% endfor %}
 </form>
 <br/>
 <form action="/shifts" method="POST">
 {% csrf_token %}
 <input type="textarea" name="desc" placeholder="Task"></input>
-<button type="sumbit" name="event" value="task">Sumbit</button>
+<button type="sumbit" {% if last_shift_out != None %}disabled{% endif %}name="event" value="task">Sumbit</button>
 </form>
 
+{% if last_shift != None %}
 <h4>Tasks</h4>
 <div class="task">{{ last_shift.tasks_completed }}</div><br/>
+{% endif %}
 {% endblock %}
