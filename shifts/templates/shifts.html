@@ -6,22 +6,14 @@ Shifts
 <h3>
 {% if last_event == None %}
 Welcome new user!
-{% elif last_event.event == "IN" %}
-Clocked in @{{ last_event.time }}
-{% elif last_event.event == "OUT" %}
-Clocked out @{{ last_event.time }}
-{% elif last_event.event == "BST" %}
-Break start @{{ last_event.time }}
-{% elif last_event.event == "BEN" %}
-Break end @{{ last_event.time }}
 {% else %}
-Unknow event: {{ last_event.event }} @{{ last_event.time }}
+{{ last_event.get_event_display }} @{{ last_event.time }}
 {% endif %}
 </h3>
 <form action="/shifts" method="POST">
 {% csrf_token %}
 {% for choice in event_choices %}
-<button type="sumbit" name="event" value="{{ choice.0 }}">{{ choice.1 }}</button>
+<button type="sumbit" {% if not choice in required_event%}disabled{% endif %} name="event" value="{{ choice.0 }}">{{ choice.1 }}</button>
 {% endfor %}
 </form>
 <br/>
@@ -32,7 +24,5 @@ Unknow event: {{ last_event.event }} @{{ last_event.time }}
 </form>
 
 <h4>Tasks</h4>
-{% for task in tasks %}
-<div class="task">{{ task.description }}</div><br/>
-{% endfor %}
+<div class="task">{{ last_shift.tasks_completed }}</div><br/>
 {% endblock %}
