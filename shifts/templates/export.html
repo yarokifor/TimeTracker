@@ -5,5 +5,7 @@ Export
 {% block main %}
 <br/>
 <br/>
-{{ hours_worked.total_seconds }}
+{% for day in daily_hours %}
+{{day}}<br/>
+{% endfor %}
 {% endblock %}

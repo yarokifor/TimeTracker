@@ -1,30 +1,47 @@
 {% extends "base.html" %}
-{% block title %}
-Shifts
-{% endblock %}
-{% block main %}
-<h3>
-{% if last_event == None %}
-Welcome new user!
-{% else %}
-{{ last_event.get_event_display }} @{{ last_event.time }}
-{% endif %}
-</h3>
-<form action="/shifts" method="POST">
-{% csrf_token %}
-{% for choice in event_choices %}
-<button type="sumbit" {% if not choice.0 in possible_events %}disabled{% endif %} name="event" value="{{ choice.0 }}">{{ choice.1 }}</button>
-{% endfor %}
-</form>
-<br/>
-<form action="/shifts" method="POST">
-{% csrf_token %}
-<input type="textarea" name="desc" placeholder="Task"></input>
-<button type="sumbit" {% if last_shift_out != None %}disabled{% endif %}name="event" value="task">Sumbit</button>
-</form>
+{% block title %}Shifts{% endblock %}
 
-{% if last_shift != None %}
-<h4>Tasks</h4>
-<div class="task">{{ last_shift.tasks_completed }}</div><br/>
-{% endif %}
+{% block main %}
+    <div class="row">
+        <div class="col-md-6">
+            <h3>Clock</h3>
+        </div>
+        <div class="col-md-6">
+            <h3>Tasks</h3>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <!--<h3>
+            </h3>-->
+            <form action="/shifts" method="POST">
+                {% csrf_token %}
+                <div class="btn-group">
+                    {% for choice in event_choices %}
+                        <button type="sumbit" class="btn btn-default"{% if not choice.0 in possible_events %} disabled=true{% endif %} name="event" value="{{ choice.0 }}">{{ choice.1 }}</button>
+                    {% endfor %}
+                </div>
+            </form>
+                {% if last_event == None %}
+                    Welcome new user!
+                {% else %}
+                    {{ last_event.get_event_display }} @{{ last_event.time }}
+                {% endif %}
+        </div>
+        <div class="col-md-6">
+            <form action="/shifts" method="POST">
+                {% csrf_token %}
+                <div class="input-group">
+                    <input class="form-control" autocomplete="off" type="text" name="desc" placeholder="Task"></input>
+                    <span class="input-group-btn">
+                        <button class="btn dtb-default" type="sumbit" {% if last_shift_out != None %}disabled{% endif %}name="event" value="task">Sumbit</button>
+                    </span>
+                </div>
+            </form>
+
+            {% if last_shift != None %}
+                <div class="task">{{ last_shift.tasks_completed }}</div><br/>
+            {% endif %}
+        </div>
+    </div>
 {% endblock %}

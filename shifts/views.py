@@ -8,6 +8,7 @@ from django.contrib.auth import authenticate, login, logout
 from shifts.models import Shift, Event
 import bleach
 import datetime
+import calendar
 
 def index(request):
     context = {"error": request.GET.get("error")}
@@ -47,13 +48,11 @@ def shifts(request):
                 last_shift.tasks_completed = '%s,`%s`' % (tasks, task)
         elif event in Event.REQUIRED_EVENT.keys():
             last_event = Event(time = datetime.datetime.now(), event = event, user = request.user)
+            last_event.save()
             if event == "IN":
-                last_event.save()
                 last_shift = Shift(user = request.user, start = last_event, tasks_completed = "")
             elif event == "OUT":
                 last_shift.end = last_event
-
-            last_event.save()
         last_shift.save()
              
     context = {
@@ -65,3 +64,52 @@ def shifts(request):
     }
 
     return render(request, 'shifts.html', context)
+
+@login_required
+def export(request):
+    daily_hours = []
+
+    start_of_week,end_of_week = __get_week_range()
+
+    shifts_of_this_week = Shift.objects.filter(user=request.user, start__time__gte = start_of_week, start__time__lte = end_of_week)
+    for i in range(7):
+        hours = __calculate_hours(shifts_of_this_week.filter(start__time__week_day = i))#,end__time__week_day = i))
+        if hours == None:
+            daily_hours.append(0)
+        else:
+            daily_hours.append(hours.total_seconds()//3600)
+        
+    context = {
+       "daily_hours": daily_hours,
+       "shifts_of_this_week": shifts_of_this_week,
+       #"hours_worked": __calculate_hours(Shift.objects.filter(user = request.user)),
+    }
+    return render(request, "export.html", context)
+
+def __calculate_hours(shifts):
+    '''Returns timedelta of how much time worked..'''
+    if shifts == None:
+        return 0
+
+    time = None
+    
+    for shift in shifts:
+        if shift.end != None:
+            time = shift.end.time - shift.start.time
+            for break_out in Event.objects.filter(user = shift.user, event__exact = "BEN"):
+               time = time - ( Event.objects.filter(user = break_out.user, time__lt = break_out.time, event__exact = "BST").last().time - break_out.time)
+    return time
+
+def __get_week_range(year=None, week=None):
+    '''Returns when a week starts and ends.'''
+    if year == None:
+        year = datetime.datetime.now().year
+    if week == None:
+        week = datetime.datetime.now().isocalendar()[1]
+
+    day_one = datetime.date(year, 1, 4)
+    day_one = day_one + datetime.timedelta(weeks=(week-1), days=day_one.weekday())
+    day_six = day_one + datetime.timedelta(days=7, seconds=-1)
+
+    return day_one, day_six
+
