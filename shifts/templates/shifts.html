@@ -5,15 +5,6 @@
     <div class="row">
         <div class="col-md-6">
             <h3>Clock</h3>
-        </div>
-        <div class="col-md-6">
-            <h3>Tasks</h3>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-6">
-            <!--<h3>
-            </h3>-->
             <form action="/shifts" method="POST">
                 {% csrf_token %}
                 <div class="btn-group">
@@ -25,22 +16,30 @@
                 {% if last_event == None %}
                     Welcome new user!
                 {% else %}
-                    {{ last_event.get_event_display }} @{{ last_event.time }}
+                    <ul class="list-group">
+                    {% for event in lastest_events reversed %}
+                        <li class="list-group-item">{{ event.get_event_display}} @{{ event.time }}</li>
+                    {% endfor %}
+                    </ul>
                 {% endif %}
         </div>
         <div class="col-md-6">
+            <h3>Tasks</h3>
             <form action="/shifts" method="POST">
                 {% csrf_token %}
                 <div class="input-group">
                     <input class="form-control" autocomplete="off" type="text" name="desc" placeholder="Task"></input>
                     <span class="input-group-btn">
-                        <button class="btn dtb-default" type="sumbit" {% if last_shift_out != None %}disabled{% endif %}name="event" value="task">Sumbit</button>
+                        <button class="btn dtb-default" type="sumbit" {% if last_shift.out != None %}disabled{% endif %}name="event" value="task">Sumbit</button>
                     </span>
                 </div>
             </form>
-
             {% if last_shift != None %}
-                <div class="task">{{ last_shift.tasks_completed }}</div><br/>
+                <ul class="list-group">
+                {% for task in tasks_completed reversed %}
+                    <li class="list-group-item">{{task}}</li>
+                {% endfor %}
+                </ul>
             {% endif %}
         </div>
     </div>

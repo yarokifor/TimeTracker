@@ -1,11 +1,12 @@
 {% extends "base.html" %}
-{% block title %}
-Export
-{% endblock %}
+{% block title %}Export{% endblock %}
 {% block main %}
-<br/>
-<br/>
-{% for day in daily_hours %}
-{{day}}<br/>
-{% endfor %}
+    <br/>
+    <br/>
+    {% for day in daily_hours %}
+        {{day}}<br/>
+    {% endfor %}
+    {% for shift,hours in shifts_and_hours %}
+        {{shift.id}} | {{shift.start.time|date:"l"}} | {{hours}} <br/>
+    {% endfor %}
 {% endblock %}

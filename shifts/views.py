@@ -58,7 +58,9 @@ def shifts(request):
     context = {
         "error": request.GET.get("error"),
         "last_shift": last_shift,
+        "tasks_completed": last_shift.tasks_completed[1:-1].split('`,`'),
         "last_event": last_event,
+        "lastest_events": Event.objects.filter(user = request.user)[:5],
         "event_choices": Event.EVENTS,
         "possible_events": Event.REQUIRED_EVENT[last_event.event if last_event != None else None]
     }
@@ -78,18 +80,24 @@ def export(request):
             daily_hours.append(0)
         else:
             daily_hours.append(hours.total_seconds()//3600)
-        
+    shifts_and_hours = []
+    for shift in shifts_of_this_week:
+        shifts_and_hours.append([shift, __calculate_hours(shift)])
     context = {
        "daily_hours": daily_hours,
-       "shifts_of_this_week": shifts_of_this_week,
+       "shifts_and_hours": shifts_and_hours,
        #"hours_worked": __calculate_hours(Shift.objects.filter(user = request.user)),
     }
     return render(request, "export.html", context)
 
 def __calculate_hours(shifts):
     '''Returns timedelta of how much time worked..'''
+
     if shifts == None:
         return 0
+
+    if type(shifts) == Shift:
+        shifts = [shifts]
 
     time = None
     
