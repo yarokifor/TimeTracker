@@ -70,23 +70,30 @@ def shifts(request):
 @login_required
 def export(request):
     daily_hours = []
+    
+    now_iso = datetime.datetime.now().isocalendar()
+    total_hours = 0
 
-    start_of_week,end_of_week = __get_week_range()
+
+    year = int(request.GET.get("year", now_iso[0]))
+    week = int(request.GET.get("week", now_iso[1]))
+    start_of_week,end_of_week = __get_week_range(year, week)
 
     shifts_of_this_week = Shift.objects.filter(user=request.user, start__time__gte = start_of_week, start__time__lte = end_of_week)
-    for i in range(7):
-        hours = __calculate_hours(shifts_of_this_week.filter(start__time__week_day = i))#,end__time__week_day = i))
-        if hours == None:
-            daily_hours.append(0)
-        else:
-            daily_hours.append(hours.total_seconds()//3600)
+    
     shifts_and_hours = []
     for shift in shifts_of_this_week:
-        shifts_and_hours.append([shift, __calculate_hours(shift)])
+        if __calculate_hours(shift) != None:
+            hours = __calculate_hours(shift).total_seconds()
+        else:
+            hours = 0
+
+        shifts_and_hours.append([shift, hours//3600])
+        total_hours = total_hours + hours
+    
     context = {
-       "daily_hours": daily_hours,
        "shifts_and_hours": shifts_and_hours,
-       #"hours_worked": __calculate_hours(Shift.objects.filter(user = request.user)),
+       "total_hours": total_hours//3600,
     }
     return render(request, "export.html", context)
 

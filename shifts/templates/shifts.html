@@ -17,7 +17,7 @@
                     Welcome new user!
                 {% else %}
                     <ul class="list-group">
-                    {% for event in lastest_events reversed %}
+                    {% for event in lastest_events %}
                         <li class="list-group-item">{{ event.get_event_display}} @{{ event.time }}</li>
                     {% endfor %}
                     </ul>

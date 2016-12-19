@@ -5,31 +5,36 @@
     </head>
     <body>
         <div class="container" role="main">
-            {% if user.is_authenticated == True %}
-                <nav class="navbar nav-default">
-                    <div class="container-fluid">
-                        <div class="nav-header">
-                            <a class="navbar-brand" href="#">Netsville</a>
-                        </div>
-                        <div class="collapse navbar-collapse">
-                            <ul class="nav nav-pills">
-                                <li{% if request.path == "/shifts" %} class="active"{% endif %}><a href="/shifts">Shifts</a></li>
-                                <li{% if request.path == "/export" %} class="active"{% endif %}><a href="/export">Export</a></li>
-                                <li{% if request.path == "/profile" %} class="active"{% endif %}><a href="/profile">Profile</a></li>
-                                <li><a href="/logout">Logout</a></li>
-                            </ul>
-                        </div>
+            <nav class="navbar nav-default">
+                <div class="container-fluid">
+                    <div class="nav-header">
+                        <a class="navbar-brand" href="#">Netsville</a>
+                    </div>
+                    {% if user.is_authenticated == True %}
+                            <div class="collapse navbar-collapse">
+                                <ul class="nav nav-pills">
+                                    <li{% if request.path == "/shifts" %} class="active"{% endif %}><a href="/shifts">Shifts</a></li>
+                                    <li{% if request.path == "/export" %} class="active"{% endif %}><a href="/export">Export</a></li>
+                                    <li{% if request.path == "/profile" %} class="active"{% endif %}><a href="/profile">Profile</a></li>
+                                    <li><a href="/logout">Logout</a></li>
+                                </ul>
+                            </div>
+                    {% endif %}
                     </div>
                 </nav>
+            {% if error != None %} 
+                <div class="alert alert-danger" role="alert">
+                    <a href="{{request.path}}" class="btn" role="button"><span class="glyphicon glyphicon-remove align-left" aria-hidden="true"></span></a>
+                    <strong>Error!</strong>
+                    {% if error == "invalid_login" %}
+                        Incorrect password.
+                    {% elif error == "already_authenticated" %}
+                        You are already signed in.
+                    {% elif error == "apple" %}
+                        This is a test.
+                    {% endif %}
+                </div>
             {% endif %}
-
-            <h2>
-                {% if error == "invalid_login"%}
-                Your password is not good.
-                {% elif error == "apple" %}
-                This is a test.
-                {% endif %}
-            </h2>
             {% block main %}
             {% endblock %}
         </div>

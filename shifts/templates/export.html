@@ -1,12 +1,31 @@
 {% extends "base.html" %}
 {% block title %}Export{% endblock %}
 {% block main %}
-    <br/>
-    <br/>
-    {% for day in daily_hours %}
-        {{day}}<br/>
-    {% endfor %}
-    {% for shift,hours in shifts_and_hours %}
-        {{shift.id}} | {{shift.start.time|date:"l"}} | {{hours}} <br/>
-    {% endfor %}
+    <div class="col-md-12">
+        <table class="table table-hover">
+            <tr>
+            <th>Shift ID</th>
+            <th>Day</th>
+            <th>Hours</th>
+            <th>Tasks</th>
+            </tr>
+            {% for shift,hours in shifts_and_hours %}
+                <tr>
+                <td>{{shift.id}}</th> 
+                <td>{{shift.start.time|date:"l"}}</th>
+                <td>{{hours}}</th>
+                <td>{{shift.tasks_completed}}</th>
+                </tr>
+            {% endfor %}
+            <tr>
+            <td>Total:</td>
+            <td colspan="4">{{ total_hours }}</t>
+            </th>
+        </table>
+    </div>
+    <div class="col-md-6">
+    <ul>
+    <li><a hrefi="{{request.path}}"></li>
+    </ul>
+    </div>
 {% endblock %}
