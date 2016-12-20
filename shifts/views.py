@@ -77,6 +77,7 @@ def export(request):
 
     year = int(request.GET.get("year", now_iso[0]))
     week = int(request.GET.get("week", now_iso[1]))
+
     start_of_week,end_of_week = __get_week_range(year, week)
 
     shifts_of_this_week = Shift.objects.filter(user=request.user, start__time__gte = start_of_week, start__time__lte = end_of_week)
@@ -94,6 +95,10 @@ def export(request):
     context = {
        "shifts_and_hours": shifts_and_hours,
        "total_hours": total_hours//3600,
+       "start_of_week": start_of_week,
+       "end_of_week": end_of_week,
+       "year": start_of_week.isocalendar()[0],
+       "week": start_of_week.isocalendar()[1]
     }
     return render(request, "export.html", context)
 
@@ -122,9 +127,9 @@ def __get_week_range(year=None, week=None):
     if week == None:
         week = datetime.datetime.now().isocalendar()[1]
 
-    day_one = datetime.date(year, 1, 4)
-    day_one = day_one + datetime.timedelta(weeks=(week-1), days=day_one.weekday())
-    day_six = day_one + datetime.timedelta(days=7, seconds=-1)
+    day_zero = datetime.date(year, 1, 4)
+    day_zero = day_zero + datetime.timedelta(weeks=(week-1), days=day_zero.weekday())
+    day_six = day_zero + datetime.timedelta(days=7, seconds=-1)
 
-    return day_one, day_six
+    return day_zero, day_six
 
