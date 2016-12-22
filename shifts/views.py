@@ -5,7 +5,7 @@ from django.http import HttpResponseRedirect
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
-from shifts.models import Shift, Event
+from shifts.models import Shift, Event, Profile
 import bleach
 import datetime
 import calendar
@@ -60,7 +60,7 @@ def shifts(request):
         "last_shift": last_shift,
         "tasks_completed": last_shift.tasks_completed[1:-1].split('`,`'),
         "last_event": last_event,
-        "lastest_events": Event.objects.filter(user = request.user)[:5],
+        "lastest_events": Event.objects.filter(user = request.user),
         "event_choices": Event.EVENTS,
         "possible_events": Event.REQUIRED_EVENT[last_event.event if last_event != None else None]
     }
@@ -133,3 +133,7 @@ def __get_week_range(year=None, week=None):
 
     return day_zero, day_six
 
+@login_required
+def profile(request):
+    context = {}
+    return render(request, "profile.html", context)

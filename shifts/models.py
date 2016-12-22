@@ -1,6 +1,16 @@
 from django.db import models
 from django.db import DataError 
 from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    auto_clock_out = models.TimeField(null=True, blank=True)
+
+def profile_create_callback(sender, **kwargs):
+   Profile(user = kwargs['instance']).save() 
+
+post_save.connect(profile_create_callback, sender = User, weak = False)
 
 class Event(models.Model):
     REQUIRED_EVENT = {
