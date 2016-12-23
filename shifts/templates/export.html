@@ -12,15 +12,15 @@
             </tr>
             {% for shift,hours in shifts_and_hours %}
                 <tr>
-                <td>{{shift.id}}</th> 
-                <td>{{shift.start.time|date:"l"}}</th>
-                <td>{{hours}}</th>
-                <td>{{shift.tasks_completed}}</th>
+                <td>{{ shift.id }}</th> 
+                <td>{{ shift.start.time|date:"l" }}</th>
+                <td>{{ hours|floatformat:2 }}</th>
+                <td>{{ shift.tasks_completed }}</th>
                 </tr>
             {% endfor %}
             <tr>
             <td>Total:</td>
-            <td colspan="4">{{ total_hours }}</t>
+            <td colspan="4">{{ total_hours|floatformat:2 }}</t>
             </th>
         </table>
     </div>

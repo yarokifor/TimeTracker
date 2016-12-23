@@ -89,12 +89,12 @@ def export(request):
         else:
             hours = 0
 
-        shifts_and_hours.append([shift, hours//3600])
+        shifts_and_hours.append([shift, hours/3600])
         total_hours = total_hours + hours
     
     context = {
        "shifts_and_hours": shifts_and_hours,
-       "total_hours": total_hours//3600,
+       "total_hours": total_hours/3600,
        "start_of_week": start_of_week,
        "end_of_week": end_of_week,
        "year": start_of_week.isocalendar()[0],
@@ -116,8 +116,8 @@ def __calculate_hours(shifts):
     for shift in shifts:
         if shift.end != None:
             time = shift.end.time - shift.start.time
-            for break_out in Event.objects.filter(user = shift.user, event__exact = "BEN"):
-               time = time - ( Event.objects.filter(user = break_out.user, time__lt = break_out.time, event__exact = "BST").last().time - break_out.time)
+            for break_out in Event.objects.filter(user = shift.user, event__exact = "BEN", time__gt = shift.start.time, time__lt = shift.end.time):
+               time = time - ( break_out.time - Event.objects.filter(user = break_out.user, time__lt = break_out.time, event__exact = "BST").last().time )
     return time
 
 def __get_week_range(year=None, week=None):

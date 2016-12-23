@@ -10,10 +10,13 @@ class ProfileInline(admin.StackedInline):
 class UserAdmin(BaseUserAdmin):
     inlines = (ProfileInline,)
 
+@admin.register(Event)
+class EventAdmin(admin.ModelAdmin):
+    list_display = ('user', 'event', 'time')
+
 # Register your models here.
 admin.site.register(Profile)
 admin.site.register(Shift)
-admin.site.register(Event)
 
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
