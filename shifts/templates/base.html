@@ -30,6 +30,8 @@
                         Incorrect password.
                     {% elif error == "already_authenticated" %}
                         You are already signed in.
+                    {% elif error == "invalid_value" %}
+                        Invalid input 
                     {% elif error == "apple" %}
                         This is a test.
                     {% endif %}

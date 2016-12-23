@@ -77,11 +77,11 @@ def export(request):
 
     year = int(request.GET.get("year", now_iso[0]))
     week = int(request.GET.get("week", now_iso[1]))
-
+    
     start_of_week,end_of_week = __get_week_range(year, week)
 
     shifts_of_this_week = Shift.objects.filter(user=request.user, start__time__gte = start_of_week, start__time__lte = end_of_week)
-    
+     
     shifts_and_hours = []
     for shift in shifts_of_this_week:
         if __calculate_hours(shift) != None:
@@ -135,5 +135,19 @@ def __get_week_range(year=None, week=None):
 
 @login_required
 def profile(request):
-    context = {}
+    context = dict()
+    if request.method == 'POST':
+        auto_clock_out = request.POST.get("auto_clock_out")
+        if auto_clock_out == "None":
+            auto_clock_out = None
+        else:
+            try:
+                auto_clock_out = datetime.datetime.strptime(auto_clock_out,'%H:%M').time()
+            except ValueError:
+                auto_clock_out = None
+                context['error'] = 'invalid_value'
+
+        request.user.profile.auto_clock_out = auto_clock_out
+        request.user.profile.save()
+
     return render(request, "profile.html", context)
