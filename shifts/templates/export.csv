@@ -1,0 +1,4 @@
+Date,Hours,Tasks
+{% for day,shifts,hours in day_shifts_and_hours %}{% if hours != 0 %}{{ day|date:"m/j/o" }},{{ hours }},"{% for shift in shifts %}{{ shift.tasks_completed }}"
+{% endfor %}{% endif %}{% endfor %}
+Total,{{ total_hours }}
