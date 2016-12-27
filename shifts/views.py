@@ -8,7 +8,6 @@ from django.contrib.auth import authenticate, login, logout
 from shifts.models import Shift, Event, Profile
 import bleach
 import datetime
-import calendar
 
 def index(request):
     context = {"error": request.GET.get("error")}
@@ -72,7 +71,7 @@ def export(request):
     daily_hours = []
     
     now_iso = datetime.datetime.now().isocalendar()
-    total_hours = 0
+    total_hours = 0 
 
 
     year = int(request.GET.get("year", now_iso[0]))
@@ -80,21 +79,27 @@ def export(request):
     
     start_of_week,end_of_week = __get_week_range(year, week)
 
+    days_of_week = __get_days_in_week(year, week)
+
     shifts_of_this_week = Shift.objects.filter(user=request.user, start__time__gte = start_of_week, start__time__lte = end_of_week)
      
-    shifts_and_hours = []
-    for shift in shifts_of_this_week:
-        if __calculate_hours(shift) != None:
-            hours = __calculate_hours(shift).total_seconds()
-        else:
-            hours = 0
+    day_shifts_and_hours = []
 
-        shifts_and_hours.append([shift, hours/3600])
-        total_hours = total_hours + hours
+    for day in days_of_week:
+        shifts = Shift.objects.filter(user = request.user, start__time__year = day.year, start__time__month = day.month, start__time__day = day.day)
+        hours = __calculate_hours(shifts)
+        if hours == None:
+            hours = 0
+        else:
+            hours = hours.total_seconds()/3600
+            total_hours = total_hours + hours
+
+        day_shifts_and_hours.append([day, shifts, hours])
+
     
     context = {
-       "shifts_and_hours": shifts_and_hours,
-       "total_hours": total_hours/3600,
+       "day_shifts_and_hours": day_shifts_and_hours,
+       "total_hours": total_hours,
        "start_of_week": start_of_week,
        "end_of_week": end_of_week,
        "year": start_of_week.isocalendar()[0],
@@ -133,6 +138,21 @@ def __get_week_range(year=None, week=None):
 
     return day_zero, day_six
 
+def __get_days_in_week(year=None, week=None):
+    '''Returns when a week starts and ends.'''
+    if year == None:
+        year = datetime.datetime.now().year
+    if week == None:
+        week = datetime.datetime.now().isocalendar()[1]
+
+    day_zero = datetime.date(year, 1, 4)
+    day_zero = day_zero + datetime.timedelta(weeks=(week-1), days=day_zero.weekday())
+    days = []
+    for day_number in range(7):
+        days.append(day_zero + datetime.timedelta(days=day_number))
+
+    return days
+     
 @login_required
 def profile(request):
     context = dict()

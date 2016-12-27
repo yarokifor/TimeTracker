@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}
+Profile
+{% endblock %}
+{% block main %}
+    <div class="col-md-6">
+        <h3>Profile for {{ request.user }}</h3>
+        <form action="/profile" method="POST">
+            {% csrf_token %}
+            <div class="input-group">
+                <span class="input-group-addon">Auto clock out</span>
+                <input  type="time" id="auto_clock_out" class="form-control" name="auto_clock_out" placeholder="{{ request.user.profile.auto_clock_out }}">
+                <div class="input-group-btn">
+                    {% if request.user.profile.auto_clock_out != None %}
+                        <button type="sumbit" class="btn btn-default" name="auto_clock_out" value="None">Disable</button>
+                    {% endif %}
+                    <button type="sumbit" class="btn btn-default">Set</button>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}

@@ -9,11 +9,11 @@
             <th>Hours</th>
             <th>Tasks</th>
             </tr>
-            {% for shift,hours in shifts_and_hours %}
+            {% for day,shift,hours in day_shifts_and_hours %}
                 <tr>
-                <td>{{ shift.start.time|date:"l" }}</th>
+                <td>{{ day|date:"l" }}</th>
                 <td>{{ hours|floatformat:2 }}</th>
-                <td>{{ shift.tasks_completed }}</th>
+                <td>{{ shift.0.tasks_completed }}</th>
                 </tr>
             {% endfor %}
             <tr>
