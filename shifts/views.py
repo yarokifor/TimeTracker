@@ -83,13 +83,24 @@ def export(request):
 
     days_of_week = __get_days_in_week(year, week)
 
+    context = {
+       "start_of_week": start_of_week,
+       "end_of_week": end_of_week,
+       "year": start_of_week.isocalendar()[0],
+       "week": start_of_week.isocalendar()[1]
+    }
+
     user = request.user
 
     if request.user.has_perm('can_view_others'):
         try:
-            user = User.objects.get(username = request.GET.get("user"))
+            user = User.objects.get(id = request.GET.get("user"))
         except ObjectDoesNotExist:
-            pass 
+            pass
+
+        context['view_user'] = user
+        context['users'] = User.objects.all()
+
 
     shifts_of_this_week = Shift.objects.filter(user = user, start__time__gte = start_of_week, start__time__lte = end_of_week)
      
@@ -107,15 +118,8 @@ def export(request):
         day_shifts_and_hours.append([day, shifts, hours])
 
     
-    context = {
-       "view_user": user,
-       "day_shifts_and_hours": day_shifts_and_hours,
-       "total_hours": total_hours,
-       "start_of_week": start_of_week,
-       "end_of_week": end_of_week,
-       "year": start_of_week.isocalendar()[0],
-       "week": start_of_week.isocalendar()[1]
-    }
+        context['day_shifts_and_hours'] = day_shifts_and_hours
+        context['total_hours'] = total_hours
     return render(request, "export.html", context)
 
 def __calculate_hours(shifts):

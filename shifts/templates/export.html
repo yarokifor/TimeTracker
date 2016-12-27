@@ -4,7 +4,20 @@
     <div class="col-md-12">
     <h3>{{ start_of_week }} - {{ end_of_week }}</h3>
     {% if perms.auth.can_view_others %}
-        <h4>Viewing {{view_user.username}}</h4> 
+        <h4>
+            Viewing
+            <div class="btn-group">
+                <button type="button" class="btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    {{view_user.username}} <span class="caret"></span>
+                    <span class="sr-only">Select user</span>
+                </button>
+                <ul class="dropdown-menu">
+                    {% for user in users %}
+                        <li><a href="/export?year={{ year }}&week={{ week }}&user={{user.id}}">{{ user.username }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </h4> 
     {% endif%}
         <table class="table table-hover">
             <tr>
@@ -14,21 +27,21 @@
             </tr>
             {% for day,shift,hours in day_shifts_and_hours %}
                 <tr>
-                <td>{{ day|date:"l" }}</th>
-                <td>{{ hours|floatformat:2 }}</th>
-                <td>{{ shift.0.tasks_completed }}</th>
+                <td>{{ day|date:"l" }}</td>
+                <td>{{ hours|floatformat:2 }}</td>
+                <td>{{ shift.0.tasks_completed }}</td>
                 </tr>
             {% endfor %}
             <tr>
             <td>Total:</td>
-            <td colspan="4">{{ total_hours|floatformat:2 }}</t>
-            </th>
+            <td colspan="4">{{ total_hours|floatformat:2 }}</td>
+            </tr>
         </table>
     </div>
     <div class="col-md-6">
     <ul class="nav nav-pills">
-    <li><a href="{{request.path}}?year={{ year }}&week={{ week|add:"-1" }}&user={{view_user.username}}"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a></li>
-    <li><a href="{{request.path}}?year={{ year }}&week={{ week|add:"1" }}&user={{view_user.username}}"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a></li>
+    <li><a href="{{request.path}}?year={{ year }}&week={{ week|add:"-1" }}&user={{view_user.id}}"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a></li>
+    <li><a href="{{request.path}}?year={{ year }}&week={{ week|add:"1" }}&user={{view_user.id}}"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a></li>
     </ul>
     </div>
 {% endblock %}
