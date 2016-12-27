@@ -22,17 +22,17 @@
                     {% endif %}
                     </div>
                 </nav>
-            {% if error != None %} 
+            {% if request.GET.error != None %} 
                 <div class="alert alert-danger" role="alert">
                     <a href="{{request.path}}" class="btn" role="button"><span class="glyphicon glyphicon-remove align-left" aria-hidden="true"></span></a>
                     <strong>Error!</strong>
-                    {% if error == "invalid_login" %}
+                    {% if request.GET.error == "invalid_login" %}
                         Incorrect password.
-                    {% elif error == "already_authenticated" %}
+                    {% elif request.GET.error == "already_authenticated" %}
                         You are already signed in.
-                    {% elif error == "invalid_value" %}
+                    {% elif request.GET.error == "invalid_value" %}
                         Invalid input 
-                    {% elif error == "apple" %}
+                    {% elif request.GET.error == "apple" %}
                         This is a test.
                     {% endif %}
                 </div>

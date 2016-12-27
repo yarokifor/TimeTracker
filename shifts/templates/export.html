@@ -3,6 +3,9 @@
 {% block main %}
     <div class="col-md-12">
     <h3>{{ start_of_week }} - {{ end_of_week }}</h3>
+    {% if perms.auth.can_view_others %}
+        <h4>Viewing {{view_user.username}}</h4> 
+    {% endif%}
         <table class="table table-hover">
             <tr>
             <th>Day</th>
@@ -24,8 +27,8 @@
     </div>
     <div class="col-md-6">
     <ul class="nav nav-pills">
-    <li><a href="{{request.path}}?year={{ year }}&week={{ week|add:"-1" }}"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a></li>
-    <li><a href="{{request.path}}?year={{ year }}&week={{ week|add:"1" }}"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a></li>
+    <li><a href="{{request.path}}?year={{ year }}&week={{ week|add:"-1" }}&user={{view_user.username}}"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a></li>
+    <li><a href="{{request.path}}?year={{ year }}&week={{ week|add:"1" }}&user={{view_user.username}}"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a></li>
     </ul>
     </div>
 {% endblock %}

@@ -4,13 +4,16 @@ from django.http import HttpResponseRedirect
 #from django.template import loader
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
+from django.core.exceptions import ObjectDoesNotExist
+from django.contrib import messages
 from shifts.models import Shift, Event, Profile
 import bleach
 import datetime
 
 def index(request):
-    context = {"error": request.GET.get("error")}
+    context = dict()
     if request.user.is_authenticated():
         return HttpResponseRedirect("/shifts?error=already_authenticated")
     return render(request, 'login.html', context)
@@ -55,7 +58,6 @@ def shifts(request):
         last_shift.save()
              
     context = {
-        "error": request.GET.get("error"),
         "last_shift": last_shift,
         "tasks_completed": last_shift.tasks_completed[1:-1].split('`,`'),
         "last_event": last_event,
@@ -81,12 +83,20 @@ def export(request):
 
     days_of_week = __get_days_in_week(year, week)
 
-    shifts_of_this_week = Shift.objects.filter(user=request.user, start__time__gte = start_of_week, start__time__lte = end_of_week)
+    user = request.user
+
+    if request.user.has_perm('can_view_others'):
+        try:
+            user = User.objects.get(username = request.GET.get("user"))
+        except ObjectDoesNotExist:
+            pass 
+
+    shifts_of_this_week = Shift.objects.filter(user = user, start__time__gte = start_of_week, start__time__lte = end_of_week)
      
     day_shifts_and_hours = []
 
     for day in days_of_week:
-        shifts = Shift.objects.filter(user = request.user, start__time__year = day.year, start__time__month = day.month, start__time__day = day.day)
+        shifts = Shift.objects.filter(user = user, start__time__year = day.year, start__time__month = day.month, start__time__day = day.day)
         hours = __calculate_hours(shifts)
         if hours == None:
             hours = 0
@@ -98,6 +108,7 @@ def export(request):
 
     
     context = {
+       "view_user": user,
        "day_shifts_and_hours": day_shifts_and_hours,
        "total_hours": total_hours,
        "start_of_week": start_of_week,

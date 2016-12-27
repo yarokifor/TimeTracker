@@ -8,7 +8,8 @@ class Profile(models.Model):
     auto_clock_out = models.TimeField(null=True, blank=True)
 
 def profile_create_callback(sender, **kwargs):
-   Profile(user = kwargs['instance']).save() 
+    if kwargs['created'] == True:
+        Profile(user = kwargs['instance']).save() 
 
 post_save.connect(profile_create_callback, sender = User, weak = False)
 
@@ -42,6 +43,9 @@ class Event(models.Model):
         super(Event, self).save(*args, **kwargs)
 
 class Shift(models.Model):
+    class Meta:
+        permissions = (('can_view_others','Can veiw others shifts and events'),)
+
     user = models.ForeignKey(User, on_delete = models.CASCADE)
     start = models.ForeignKey(Event, related_name = "start",on_delete = models.CASCADE)
     end = models.ForeignKey(Event, related_name = "end", on_delete = models.SET_NULL, null = True)
