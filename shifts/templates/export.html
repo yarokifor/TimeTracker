@@ -19,11 +19,11 @@
             </div>
         </h4> 
     {% endif%}
-        <table class="table table-hover">
+        <table class="table table-hover text-left">
             <tr>
-            <th>Day</th>
-            <th>Hours</th>
-            <th>Tasks</th>
+            <th class="col-md-1">Day</th>
+            <th class="col-md-1">Hours</th>
+            <th class="col-md-10">Tasks</th>
             </tr>
             {% for day,shift,hours in day_shifts_and_hours %}
                 <tr>
