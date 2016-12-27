@@ -65,7 +65,6 @@ def shifts(request):
         "event_choices": Event.EVENTS,
         "possible_events": Event.REQUIRED_EVENT[last_event.event if last_event != None else None]
     }
-
     return render(request, 'shifts.html', context)
 
 @login_required
@@ -120,6 +119,9 @@ def export(request):
     
         context['day_shifts_and_hours'] = day_shifts_and_hours
         context['total_hours'] = total_hours
+
+    if request.GET.get("type") == "csv":
+        return render(request, 'export.csv', context, content_type="text/csv")
     return render(request, "export.html", context)
 
 def __calculate_hours(shifts):

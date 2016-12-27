@@ -5,10 +5,10 @@
     <h3>{{ start_of_week }} - {{ end_of_week }}</h3>
     {% if perms.auth.can_view_others %}
         <h4>
-            Viewing
             <div class="btn-group">
-                <button type="button" class="btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    {{view_user.username}} <span class="caret"></span>
+                <a class="btn btn-default" role="button" href="export?year={{ year }}&week={{ week }}&user={{user.id}}&type=csv">Download</a>
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Veiwing {{view_user.username}} <span class="caret"></span>
                     <span class="sr-only">Select user</span>
                 </button>
                 <ul class="dropdown-menu">
@@ -25,11 +25,15 @@
             <th class="col-md-1">Hours</th>
             <th class="col-md-10">Tasks</th>
             </tr>
-            {% for day,shift,hours in day_shifts_and_hours %}
+            {% for day,shifts,hours in day_shifts_and_hours %}
                 <tr>
                 <td>{{ day|date:"l" }}</td>
                 <td>{{ hours|floatformat:2 }}</td>
-                <td>{{ shift.0.tasks_completed }}</td>
+                <td>
+                    {% for shift in shifts %}
+                        {{ shift.tasks_completed }}
+                    {% endfor %}
+                </td>
                 </tr>
             {% endfor %}
             <tr>
