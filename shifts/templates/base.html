@@ -24,21 +24,22 @@
                     {% endif %}
                     </div>
                 </nav>
-            {% if request.GET.error != None %} 
-                <div class="alert alert-danger" role="alert">
-                    <a href="{{request.path}}" class="btn" role="button"><span class="glyphicon glyphicon-remove align-left" aria-hidden="true"></span></a>
-                    <strong>Error!</strong>
-                    {% if request.GET.error == "invalid_login" %}
-                        Incorrect password.
-                    {% elif request.GET.error == "already_authenticated" %}
-                        You are already signed in.
-                    {% elif request.GET.error == "invalid_value" %}
-                        Invalid input 
-                    {% elif request.GET.error == "apple" %}
-                        This is a test.
-                    {% endif %}
-                </div>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{% spaceless %}
+                        {% if message.level_tag == "error" %}
+                            danger
+                        {% else %}
+                            {{ message.level_tag }}
+                        {% endif %}
+                    {% endspaceless %}" role="alert">
+                        <a href="{{request.path}}" class="btn" role="button"><span class="glyphicon glyphicon-remove align-left" aria-hidden="true"></span></a>
+                        {{ message }}    
+                    </div>
+                {% endfor %}
             {% endif %}
+
             {% block main %}
             {% endblock %}
         </div>

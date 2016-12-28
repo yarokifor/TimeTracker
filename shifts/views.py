@@ -15,7 +15,8 @@ import datetime
 def index(request):
     context = dict()
     if request.user.is_authenticated():
-        return HttpResponseRedirect("/shifts?error=already_authenticated")
+        messages.warning(request,"You are already signed in.")
+        return HttpResponseRedirect("/shifts")
     return render(request, 'login.html', context)
 
 @require_http_methods(['POST'])
@@ -27,7 +28,8 @@ def login_handler(request):
         login(request, user)
         return HttpResponseRedirect("/shifts")
     else:
-        return HttpResponseRedirect("/?error=invalid_login") 
+        message.error(request, "Incorrect password.")
+        return HttpResponseRedirect("/") 
 
 @login_required 
 def logout_handler(request):
@@ -182,7 +184,7 @@ def profile(request):
                 auto_clock_out = datetime.datetime.strptime(auto_clock_out,'%H:%M').time()
             except ValueError:
                 auto_clock_out = None
-                context['error'] = 'invalid_value'
+                messages.error(request, "Invalid input.")
 
         request.user.profile.auto_clock_out = auto_clock_out
         request.user.profile.save()
