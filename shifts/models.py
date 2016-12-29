@@ -28,7 +28,7 @@ class Event(models.Model):
         ('BEN','Break end'),
     )
     time = models.DateTimeField()
-    event = models.CharField(max_length = 2, choices=EVENTS)
+    event = models.CharField(max_length = 3, choices=EVENTS)
     user = models.ForeignKey(User, on_delete = models.CASCADE)
 
     @staticmethod
@@ -37,7 +37,7 @@ class Event(models.Model):
         
     def save(self, *args, **kwargs):
         last_event = self.last_event(self.user)
-        if last_event != None and last_event.id != self.id and not self.event in self.REQUIRED_EVENT[last_event.event]:
+        if last_event != None and last_event.id == self.id and not self.event in self.REQUIRED_EVENT[last_event.event]:
             raise DataError('To "%s" you must "%s" first and not "%s"' % (self.event, self.REQUIRED_EVENT[last_event.event], last_event.event))
 
         super(Event, self).save(*args, **kwargs)
