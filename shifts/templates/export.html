@@ -2,7 +2,7 @@
 {% block title %}Export{% endblock %}
 {% block main %}
     <div class="col-md-12">
-    <h3>{{ start_of_week }} - {{ end_of_week }}</h3>
+    <h3 title="Year {{ year }} Week {{ week }}">{{ day_shifts_and_hours.0.0.date }} - {{ day_shifts_and_hours.6.0.date }}</h3>
     {% if perms.auth.can_view_others %}
         <h4>
             <div class="btn-group">
@@ -27,7 +27,7 @@
             </tr>
             {% for day,shifts,hours in day_shifts_and_hours %}
                 <tr>
-                <td>{{ day|date:"l" }}</td>
+                <td title="{{ day }}">{{ day|date:"l" }}</td>
                 <td>{{ hours|floatformat:2 }}</td>
                 <td>
                     {% for shift in shifts %}
@@ -44,8 +44,8 @@
     </div>
     <div class="col-md-6">
     <ul class="nav nav-pills">
-    <li><a href="{{request.path}}?year={{ year }}&week={{ week|add:"-1" }}&user={{view_user.id}}"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a></li>
-    <li><a href="{{request.path}}?year={{ year }}&week={{ week|add:"1" }}&user={{view_user.id}}"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a></li>
+    <li><a href="{{request.path}}?year={{ last_week.0 }}&week={{ last_week.1 }}&user={{view_user.id}}"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a></li>
+    <li><a href="{{request.path}}?year={{ next_week.0 }}&week={{ next_week.1 }}&user={{view_user.id}}"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a></li>
     </ul>
     </div>
 {% endblock %}

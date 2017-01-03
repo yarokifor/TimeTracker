@@ -80,16 +80,12 @@ def export(request):
     year = int(request.GET.get("year", now_iso[0]))
     week = int(request.GET.get("week", now_iso[1]))
     
-    start_of_week,end_of_week = __get_week_range(year, week)
+    context = {
+       "year": now_iso[0],
+       "week": now_iso[1]
+    }
 
     days_of_week = __get_days_in_week(year, week)
-
-    context = {
-       "start_of_week": start_of_week,
-       "end_of_week": end_of_week,
-       "year": start_of_week.isocalendar()[0],
-       "week": start_of_week.isocalendar()[1]
-    }
 
     user = request.user
 
@@ -102,9 +98,6 @@ def export(request):
         context['view_user'] = user
         context['users'] = User.objects.all()
 
-
-    shifts_of_this_week = Shift.objects.filter(user = user, start__time__gte = start_of_week, start__time__lte = end_of_week)
-     
     day_shifts_and_hours = []
 
     for day in days_of_week:
@@ -121,7 +114,8 @@ def export(request):
     
         context['day_shifts_and_hours'] = day_shifts_and_hours
         context['total_hours'] = total_hours
-
+        context['last_week'] = (day_shifts_and_hours[0][0] - datetime.timedelta(weeks=1)).isocalendar()
+        context['next_week'] = (day_shifts_and_hours[0][0] + datetime.timedelta(weeks=1)).isocalendar()
     if request.GET.get("type") == "csv":
         return render(request, 'export.csv', context, content_type="text/csv")
     return render(request, "export.html", context)
@@ -144,19 +138,6 @@ def __calculate_hours(shifts):
                time = time - ( break_out.time - Event.objects.filter(user = break_out.user, time__lt = break_out.time, event__exact = "BST").last().time )
     return time
 
-def __get_week_range(year=None, week=None):
-    '''Returns when a week starts and ends.'''
-    if year == None:
-        year = datetime.datetime.now().year
-    if week == None:
-        week = datetime.datetime.now().isocalendar()[1]
-
-    day_zero = datetime.date(year, 1, 4)
-    day_zero = day_zero + datetime.timedelta(weeks=(week-1), days=day_zero.weekday())
-    day_six = day_zero + datetime.timedelta(days=7, seconds=-1)
-
-    return day_zero, day_six
-
 def __get_days_in_week(year=None, week=None):
     '''Returns when a week starts and ends.'''
     if year == None:
@@ -164,14 +145,14 @@ def __get_days_in_week(year=None, week=None):
     if week == None:
         week = datetime.datetime.now().isocalendar()[1]
 
-    day_zero = datetime.date(year, 1, 4)
-    day_zero = day_zero + datetime.timedelta(weeks=(week-1), days=day_zero.weekday())
+    day_zero = datetime.datetime.strptime("%i %i 1"%(year, week), "%Y %W %w")
     days = []
     for day_number in range(7):
         days.append(day_zero + datetime.timedelta(days=day_number))
-
     return days
-     
+
+
+
 @login_required
 def profile(request):
     context = dict()
