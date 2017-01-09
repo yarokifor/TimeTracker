@@ -61,12 +61,14 @@ def shifts(request):
              
     context = {
         "last_shift": last_shift,
-        "tasks_completed": last_shift.tasks_completed[1:-1].split('`,`'),
         "last_event": last_event,
         "lastest_events": Event.objects.filter(user = request.user),
         "event_choices": Event.EVENTS,
         "possible_events": Event.REQUIRED_EVENT[last_event.event if last_event != None else None]
     }
+    if last_shift != None:
+        context['tasks_completed'] = last_shift.tasks_completed[1:-1].split('`,`')
+
     return render(request, 'shifts.html', context)
 
 @login_required
