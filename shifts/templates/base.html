@@ -13,14 +13,12 @@
                         <a class="navbar-brand" href="#">Netsville</a>
                     </div>
                     {% if user.is_authenticated == True %}
-                            <div class="collapse navbar-collapse">
-                                <ul class="nav nav-pills">
-                                    <li{% if request.path == "/shifts" %} class="active"{% endif %}><a href="/shifts">Shifts</a></li>
-                                    <li{% if request.path == "/export" %} class="active"{% endif %}><a href="/export">Export</a></li>
-                                    <li{% if request.path == "/profile" %} class="active"{% endif %}><a href="/profile">Profile</a></li>
-                                    <li><a href="/logout">Logout</a></li>
-                                </ul>
-                            </div>
+                        <ul class="nav nav-pills">
+                            <li{% if request.path == "/shifts" %} class="active"{% endif %}><a href="/shifts">Shifts</a></li>
+                            <li{% if request.path == "/export" %} class="active"{% endif %}><a href="/export">Export</a></li>
+                            <li{% if request.path == "/profile" %} class="active"{% endif %}><a href="/profile">Profile</a></li>
+                            <li><a href="/logout">Logout</a></li>
+                        </ul>
                     {% endif %}
                     </div>
                 </nav>
