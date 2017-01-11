@@ -83,8 +83,8 @@ def export(request):
     week = int(request.GET.get("week", now_iso[1]))
     
     context = {
-       "year": now_iso[0],
-       "week": now_iso[1]
+       "year": year,
+       "week": week
     }
 
     days_of_week = __get_days_in_week(year, week)
