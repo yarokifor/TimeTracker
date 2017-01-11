@@ -1,5 +1,7 @@
 import os
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 INSTALLED_APPS = [
     'shifts.apps.ShiftsConfig',
     'django.contrib.admin',
@@ -92,3 +94,9 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 LOGIN_URL = '/'
+
+local_settings = BASE_DIR+'/hours/local_settings.py'
+try:
+    exec(compile(open(local_settings).read(),local_settings,'exec'))
+except:
+    pass
