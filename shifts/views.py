@@ -11,6 +11,7 @@ from django.contrib import messages
 from shifts.models import Shift, Event, Profile
 import bleach
 import datetime
+from django.utils import timezone
 
 def index(request):
     context = dict()
@@ -75,7 +76,7 @@ def shifts(request):
 def export(request):
     daily_hours = []
     
-    now_iso = datetime.datetime.now().isocalendar()
+    now_iso = timezone.now().isocalendar()
     total_hours = 0 
 
 
@@ -105,6 +106,7 @@ def export(request):
     for day in days_of_week:
         shifts = Shift.objects.filter(user = user, start__time__year = day.year, start__time__month = day.month, start__time__day = day.day)
         hours = __calculate_hours(shifts)
+
         if hours == None:
             hours = 0
         else:
@@ -112,12 +114,12 @@ def export(request):
             total_hours = total_hours + hours
 
         day_shifts_and_hours.append([day, shifts, hours])
-
     
-        context['day_shifts_and_hours'] = day_shifts_and_hours
-        context['total_hours'] = total_hours
-        context['last_week'] = (day_shifts_and_hours[0][0] - datetime.timedelta(weeks=1)).isocalendar()
-        context['next_week'] = (day_shifts_and_hours[0][0] + datetime.timedelta(weeks=1)).isocalendar()
+    
+    context['day_shifts_and_hours'] = day_shifts_and_hours
+    context['total_hours'] = total_hours
+    context['last_week'] = (day_shifts_and_hours[0][0] - datetime.timedelta(weeks=1)).isocalendar()
+    context['next_week'] = (day_shifts_and_hours[0][0] + datetime.timedelta(weeks=1)).isocalendar()
     if request.GET.get("type") == "csv":
         return render(request, 'export.csv', context, content_type="text/csv")
     return render(request, "export.html", context)
@@ -131,11 +133,10 @@ def __calculate_hours(shifts):
     if type(shifts) == Shift:
         shifts = [shifts]
 
-    time = None
-    
+    time = datetime.timedelta(0)
     for shift in shifts:
         if shift.end != None:
-            time = shift.end.time - shift.start.time
+            time += shift.end.time - shift.start.time
             for break_out in Event.objects.filter(user = shift.user, event__exact = "BEN", time__gt = shift.start.time, time__lt = shift.end.time):
                time = time - ( break_out.time - Event.objects.filter(user = break_out.user, time__lt = break_out.time, event__exact = "BST").last().time )
     return time

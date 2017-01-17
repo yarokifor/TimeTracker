@@ -37,7 +37,7 @@ class Event(models.Model):
         
     def save(self, *args, **kwargs):
         last_event = self.last_event(self.user)
-        if last_event != None and last_event.id != self.id and not self.event in self.REQUIRED_EVENT[last_event.event]:
+        if last_event != None and self.id == None and not self.event in self.REQUIRED_EVENT[last_event.event]:
             raise DataError('To "%s" you must "%s" first and not "%s"' % (self.event, self.REQUIRED_EVENT[last_event.event], last_event.event))
 
         super(Event, self).save(*args, **kwargs)

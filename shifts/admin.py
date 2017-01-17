@@ -14,9 +14,21 @@ class UserAdmin(BaseUserAdmin):
 class EventAdmin(admin.ModelAdmin):
     list_display = ('user', 'event', 'time')
 
+@admin.register(Shift)
+class ShiftAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'start_time', 'end_time')
+    def start_time(self, obj):
+        return obj.start.time if obj.start != None else None
+    start_time.short_description = 'Start'
+
+    def end_time(self, obj):
+        return obj.end.time if obj.end != None else None
+    end_time.short_description = 'End'
+        
+        
+
 # Register your models here.
 admin.site.register(Profile)
-admin.site.register(Shift)
 
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
