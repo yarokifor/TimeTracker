@@ -29,7 +29,7 @@ def login_handler(request):
         login(request, user)
         return HttpResponseRedirect("/shifts")
     else:
-        message.error(request, "Incorrect password.")
+        messages.error(request, "Incorrect password.")
         return HttpResponseRedirect("/") 
 
 @login_required 
