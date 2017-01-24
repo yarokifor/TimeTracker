@@ -1,15 +1,15 @@
-from django.test import TestCase, Client
+from django.test import SimpleTestCase, TransactionTestCase, TestCase, Client
 from django.contrib import auth
 from django.contrib.auth.models import User
-from shifts.models import Event
+from shifts.models import Event, Shift, Profile
 from django.db import DataError
+from django.utils import timezone
+import datetime
+
 # Create your tests here.
 
-class Views(TestCase):
+class Common_Views(TestCase):
     def setUp(self):
-        #User.objects.create(username = 'admin', password = 'admin', is_superuser = True) 
-        #User.objects.create(username = 'staff', password = 'staff', is_staff = True) 
-        #User.objects.create(username = 'user', password = 'user', is_staff = False) 
         User.objects.create_user(username = 'user', password='user')
         self.client = Client()
 
@@ -26,6 +26,7 @@ class Views(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.templates[0].name, 'login.html')
 
+    def test_index_redirect(self):
         self.client.login(username = 'user', password = 'user')
         response = self.client.get('/')
         self.assertEqual(response.status_code, 302)
@@ -39,7 +40,8 @@ class Views(TestCase):
         self.assertTrue(user.is_authenticated())
 
         self.client.logout()
-        
+
+    def test_login_handler_incorrect(self):
         response = self.client.post('/login',{'username': 'user', 'password': 'password'}, follow=True)
         self.assertEqual(len(response.context['messages']), 1)
         for message in response.context['messages']:
@@ -59,10 +61,17 @@ class Views(TestCase):
         if user.is_authenticated()== True:
             self.client.logout()
 
-    def test_shifts(self):
+class Shift_Veiw(TransactionTestCase):
+    def setUp(self):
+        self.client = Client()
+        User.objects.create_user(username = 'user', password='user')
         self.client.login(username = 'user', password = 'user')
+        self.user = auth.get_user(self.client)
+
+    def test_shifts_no_data(self):
         response = self.client.get("/shifts")
 
+        self.assertEqual(response.status_code, 200)
         self.assertIsNone(response.context["last_shift"])
         self.assertIsNone(response.context["last_event"])
         self.assertEqual(len(response.context["lastest_events"]), 0)
@@ -70,8 +79,55 @@ class Views(TestCase):
         self.assertIs(response.context['possible_events'], Event.REQUIRED_EVENT[None])
         self.assertNotIn('task_completed', response.context)
 
-        #response = self.client.post('/shifts', {'event':'task','desc':''})
-        #self.assertEqual(response.status_code, 200)
+    def test_shifts_no_data_post_task(self):
+        response = self.client.post('/shifts', {'event':'task','desc':''})
+        self.assertEqual(response.status_code, 200)
+       
+    def test_shifts_no_data_post_invalid_event(self): 
+        invalid_events = ['OUT','BST','BEN']
+        for event in invalid_events:
+            with self.assertRaises(DataError):
+                self.client.post('/shifts', {'event': event})
+
+    def test_shifts_clock_in(self):
+        response = self.client.post('/shifts', {'event': 'IN'})
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNotNone(response.context['last_shift'])
+        self.assertIsNotNone(response.context['last_event'])
+        self.assertIsNotNone(response.context['last_event'])
         
-        self.assertRaises(DataError, self.client.post('/shifts', {'event':'OUT'}))
-            
+
+    def test_shifts_post_task(self):
+        event = Event(event = 'IN', user = self.user, time = timezone.now())
+        event.save()
+        Shift(start = event, user = self.user).save()
+        
+        response = self.client.post('/shifts', {'event':'task','desc':'Test'})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNotNone(response.context['last_shift'])
+        self.assertIn('tasks_completed', response.context)
+        self.assertEqual(response.context['tasks_completed'],['Test'])
+        
+        response = self.client.post('/shifts', {'event':'task','desc':'Test2'})
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNotNone(response.context['last_shift'])
+        self.assertIn('tasks_completed', response.context)
+        self.assertEqual(response.context['tasks_completed'],['Test','Test2'])
+
+    def test_shifts_break_start(self):
+        event = Event(event = 'IN', user = self.user, time = timezone.now())
+        event.save()
+        Shift(start = event, user = self.user).save()
+
+        response = self.client.post('/shifts', {'event': 'BST'})
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNotNone(response.context['last_shift'])
+        self.assertIsNotNone(response.context['last_event'])
+        self.assertEqual(response.context['last_event'].event, 'BST')
+        
+    def test_shifts_break_end(self):
+        pass
+    def test_shifts_clock_out(self):
+        pass
+

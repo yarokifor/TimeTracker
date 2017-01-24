@@ -51,14 +51,15 @@ def shifts(request):
                 last_shift.tasks_completed = '`%s`' % task
             else:
                 last_shift.tasks_completed = '%s,`%s`' % (tasks, task)
+            last_shift.save()
         elif event in Event.REQUIRED_EVENT.keys():
-            last_event = Event(time = datetime.datetime.now(), event = event, user = request.user)
+            last_event = Event(time = timezone.now(), event = event, user = request.user)
             last_event.save()
             if event == "IN":
                 last_shift = Shift(user = request.user, start = last_event, tasks_completed = "")
             elif event == "OUT":
                 last_shift.end = last_event
-        last_shift.save()
+            last_shift.save()
              
     context = {
         "last_shift": last_shift,
