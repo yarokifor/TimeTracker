@@ -93,7 +93,7 @@ def export(request):
 
     user = request.user
 
-    if request.user.has_perm('can_view_others'):
+    if request.user.has_perm('shifts.can_view_others'):
         try:
             user = User.objects.get(id = request.GET.get("user"))
         except ObjectDoesNotExist:
@@ -164,7 +164,7 @@ def profile(request):
         auto_clock_out = request.POST.get("auto_clock_out")
         if auto_clock_out == "None":
             auto_clock_out = None
-        else:
+        elif auto_clock_out != None:
             try:
                 auto_clock_out = datetime.datetime.strptime(auto_clock_out,'%H:%M').time()
             except ValueError:
