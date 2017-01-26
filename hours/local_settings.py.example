@@ -1,0 +1,11 @@
+import os
+
+# Should be a string that's 50 charaters long
+SECRET_KEY = "" 
+
+#Disable if you are running in production
+DEBUG = True
+
+#Adjust for domains
+ALLOWED_HOSTS = ["127.0.0.1"]
+
