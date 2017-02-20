@@ -8,5 +8,6 @@ urlpatterns = [
     url(r'^shifts$', views.shifts),
     url(r'^export$', views.export),
     url(r'^profile$', views.profile),
-
+    url(r'^register$', views.register),
+    url(r'^send_registration$', views.send_registration),
 ]

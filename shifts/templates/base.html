@@ -17,6 +17,7 @@
                             <li{% if request.path == "/shifts" %} class="active"{% endif %}><a href="/shifts">Shifts</a></li>
                             <li{% if request.path == "/export" %} class="active"{% endif %}><a href="/export">Export</a></li>
                             <li{% if request.path == "/profile" %} class="active"{% endif %}><a href="/profile">Profile</a></li>
+                            {% if perms.auth.can_send_registration  %}<li{% if request.path == "/send_registration" %} class="active"{% endif %}><a href="/send_registration">Invites</a></li>{% endif %}
                             <li><a href="/logout">Logout</a></li>
                         </ul>
                     {% endif %}

@@ -8,10 +8,15 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import messages
-from shifts.models import Shift, Event, Profile
+from shifts.models import Shift, Event, Profile, Registration
 import bleach
 import datetime
 from django.utils import timezone
+import hashlib
+import random
+import os
+from django.core.mail import send_mail, send_mass_mail
+import base64
 
 def index(request):
     context = dict()
@@ -35,7 +40,8 @@ def login_handler(request):
 @login_required 
 def logout_handler(request):
     logout(request)
-    return HttpResponseRedirect("/?message=succesful_logout")
+    messages.info(request, "You've been logout")
+    return HttpResponseRedirect("/")
 
 @login_required 
 def shifts(request):
@@ -175,3 +181,91 @@ def profile(request):
         request.user.profile.save()
 
     return render(request, "profile.html", context)
+
+def register(request):
+    context = dict()
+    key = request.GET.get('key')
+    if key == None:
+        messages.error(request, 'Registant doesn\'t exist.')
+        return HttpResponseRedirect('/')
+    key = base64.urlsafe_b64decode(key)
+    key_hash = hashlib.sha512(key).digest()
+    registants = Registration.objects.filter(key_hash = key_hash)
+    if len(registants) <= 0:
+        messages.error(request, 'Registant doesn\'t exist.')
+        return HttpResponseRedirect('/')
+    elif len(registants) > 1:
+        messages.error(request, 'Duplicate key. Something funky is going on and I am not leting you through.')
+        return HttpResponseRedirect('/')
+    elif request.method == 'GET':
+        context['email'] = registants[0].email
+        return render(request, 'registration.html', context)
+    elif request.method == 'POST':
+        #TODO: Add checking for user input
+        try:
+            User.objects.create_user(
+                username = request.POST['username'],
+                email = registants[0].email,
+                password = request.POST['password'],
+                frist_name = request.POST['first_name'],
+                last_name = request.POST['last_name'])
+        except:
+            messages.error(request, 'There was an error creating your account. Please try again.')
+            return HttpResponseRedirect('/register?key=%s'%request.GET.get('key'))
+        else:
+            registants[0].delete()
+
+        messages.info(request, 'Your account was succefully created. Please login.')
+        return HttpResponseRedirect('/')
+
+@login_required
+def send_registration(request):
+    if request.method == 'POST':
+        emails = request.POST.get("emails")
+        if emails == None:
+            messages.error(request, 'No valid emails.')
+        emails = emails.split('\n')
+        host = request.get_host()
+
+        url = "%s://%s/register?key=%%s"%(
+            request.scheme,
+            request.get_host(),
+            )
+
+        emails_to_send = list()
+        for email in emails:
+            if '@' in email:
+                if len(Registration.objects.filter(email = email)) <= 0:
+                    key = os.urandom(33)
+                    key_hash = hashlib.sha512(key).digest()
+                    key = base64.urlsafe_b64encode(key)
+                    user_url = url % key.decode('utf-8')
+                    Registration(email = email, key_hash = key_hash).save()
+
+                    msg = '''Hello,
+                    You've reviced an invitation to join Netsville's Time Tracker. Please click the link to registrator:
+                    
+                    %s
+                    '''%(user_url)
+                     
+                    emails_to_send.append((
+                        'Time Tracker Registration', #Subject
+                        msg,                         #Message
+                        'noreply@netsville.com',     #From address
+                        [email]))                    #To address
+                else:
+                    messages.error(request, 'An invitation has already been sent to \'%s\'.' % email)
+            else:
+                 messages.error(request, '\'%s\' is an invalid email.'% email)
+
+        successfully_delivered = 0
+        if len(emails_to_send) > 0: 
+            #try:
+            successfully_delivered = send_mass_mail(emails_to_send)
+            #except:
+            #    messages.error(request, 'There was an error sending emails')
+            messages.info(request, '%d/%d emails were succfully sent.'%(successfully_delivered, len(emails_to_send)))
+        else:
+            messages.error(request, 'No emails were succfully valided and therefore there was no attemp to send email.') 
+    return render(request, 'send_registration.html')
+    

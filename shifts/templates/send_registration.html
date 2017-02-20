@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}
+{% endblock %}
+{% block main %}
+<div class="col-md-6">
+    <form id="emails" action="/send_registration" method="POST">
+        {% csrf_token %}
+        <label for="emails">Emails:</label>
+        </br>
+        <textarea cols=32 rows=15  name="emails"></textarea>
+        </br>
+        <button class="btn btn-default" type="sumbit">Send invitations</button>
+    </form>
+</div>
+{% endblock %}

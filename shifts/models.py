@@ -52,3 +52,9 @@ class Shift(models.Model):
     start = models.ForeignKey(Event, related_name = "start",on_delete = models.CASCADE)
     end = models.ForeignKey(Event, related_name = "end", on_delete = models.SET_NULL, null = True)
     tasks_completed = models.TextField()
+
+class Registration(models.Model):
+    class Meta:
+        permissions = (('can_send_registration','Can send a registration request.'),)
+    email = models.TextField()
+    key_hash = models.BinaryField()
