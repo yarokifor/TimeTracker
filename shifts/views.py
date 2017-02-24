@@ -184,6 +184,9 @@ def profile(request):
 
 def register(request):
     context = dict()
+    if request.user.is_authenticated == True:
+        messages.error(request, 'You can\'t registered when logged in.')
+        return HttpResponseRedirect('/shifts')
     key = request.GET.get('key')
     if key == None:
         messages.error(request, 'Registant doesn\'t exist.')
@@ -195,31 +198,67 @@ def register(request):
         messages.error(request, 'Registant doesn\'t exist.')
         return HttpResponseRedirect('/')
     elif len(registants) > 1:
-        messages.error(request, 'Duplicate key. Something funky is going on and I am not leting you through.')
+        messages.error(request, 'Duplicate key. Something funky is going on and I am not letting you through.')
         return HttpResponseRedirect('/')
     elif request.method == 'GET':
         context['email'] = registants[0].email
         return render(request, 'registration.html', context)
     elif request.method == 'POST':
-        #TODO: Add checking for user input
-        try:
-            User.objects.create_user(
-                username = request.POST['username'],
-                email = registants[0].email,
-                password = request.POST['password'],
-                frist_name = request.POST['first_name'],
-                last_name = request.POST['last_name'])
-        except:
-            messages.error(request, 'There was an error creating your account. Please try again.')
-            return HttpResponseRedirect('/register?key=%s'%request.GET.get('key'))
-        else:
+        return_error = HttpResponseRedirect('/register?key=%s'%request.GET.get('key'))
+        
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        verified_password = request.POST.get('verified_password')
+        email = request.POST.get('email')
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        
+        if password != verified_password:
+            messages.error(request, 'Your passwords do not match.')
+        if len(password) < 8:
+            messages.error(request, 'Your password must be greater than eight characters.')
+
+        if username == None or username == '':
+            messages.error(request, 'No username was supplied.')
+        elif len(username) < 3:
+            messages.error(request, 'Your username must be more than three characters.')
+        elif len(User.objects.filter(username = username)) > 0:
+            messages.error(request, 'This username is already in use.')
+        
+        if email == None or email == '':
+            messages.error(request, 'No email was supplied.')
+        elif len(User.objects.filter(email = email)) > 0:
+            messages.error(request, 'This email is already in use. Invalid key.')
             registants[0].delete()
+            return HttpResponseRedirect('/')
+        elif email != registants[0].email:
+            messages.error(request, 'This email doesn\'t match the key\'s email contact. Please try again.')
+       
+        #TODO: Make sure messages are errors
+        if len(messages.get_messages(request)) > 0:
+            return return_error
+
+        #try:
+        User.objects.create_user(
+                username = username,
+                email = registants[0].email,
+                password = password,
+                first_name = first_name,
+                last_name = last_name)
+        #except:
+        #    messages.error(request, 'There was an error creating your account. Please try again.')
+        #    return return_error
+        #else:
+        #    registants[0].delete()
 
         messages.info(request, 'Your account was succefully created. Please login.')
         return HttpResponseRedirect('/')
 
 @login_required
 def send_registration(request):
+    if request.method == 'GET':
+        pass
+    
     if request.method == 'POST':
         emails = request.POST.get("emails")
         if emails == None:
