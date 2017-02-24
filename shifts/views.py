@@ -257,8 +257,7 @@ def register(request):
 @login_required
 def send_registration(request):
     context = dict()
-    if request.method == 'GET':
-        context['registrations'] = Registration.objects.all()
+    context['registrations'] = Registration.objects.all()
     
     if request.method == 'POST':
         emails = request.POST.get("emails")
