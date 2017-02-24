@@ -238,18 +238,18 @@ def register(request):
         if len(messages.get_messages(request)) > 0:
             return return_error
 
-        #try:
-        User.objects.create_user(
+        try:
+            User.objects.create_user(
                 username = username,
                 email = registants[0].email,
                 password = password,
                 first_name = first_name,
                 last_name = last_name)
-        #except:
-        #    messages.error(request, 'There was an error creating your account. Please try again.')
-        #    return return_error
-        #else:
-        #    registants[0].delete()
+        except:
+            messages.error(request, 'There was an error creating your account. Please try again.')
+            return return_error
+        else:
+            registants[0].delete()
 
         messages.info(request, 'Your account was succefully created. Please login.')
         return HttpResponseRedirect('/')
@@ -276,23 +276,26 @@ def send_registration(request):
         for email in emails:
             if '@' in email:
                 if len(Registration.objects.filter(email = email)) <= 0:
-                    key = os.urandom(33)
-                    key_hash = hashlib.sha512(key).digest()
-                    key = base64.urlsafe_b64encode(key)
-                    user_url = url % key.decode('utf-8')
-                    Registration(email = email, key_hash = key_hash).save()
+                    if len(User.objects.filter(email = email) <= 0):
+                        #TODO: Add some salt
+                        key = os.urandom(33)
+                        key_hash = hashlib.sha512(key).digest()
+                        key = base64.urlsafe_b64encode(key)
+                        user_url = url % key.decode('utf-8')
+                        Registration(email = email, key_hash = key_hash).save()
 
-                    msg = '''Hello,
-                    You've reviced an invitation to join Netsville's Time Tracker. Please click the link to register:
-                    
-                    %s
-                    '''%(user_url)
-                     
-                    emails_to_send.append((
-                        'Time Tracker Registration', #Subject
-                        msg,                         #Message
-                        'noreply@netsville.com',     #From address
-                        [email]))                    #To address
+                        msg = ( 'Hello,'
+                                'You\'ve reviced an invitation to join Netsville\'s Time Tracker. Please click the link to register:'
+                                ''
+                                '%s'%(user_url))
+
+                        emails_to_send.append((
+                            'Time Tracker Registration', #Subject
+                            msg,                         #Message
+                            'noreply@netsville.com',     #From address
+                            [email]))                    #To address
+                    else:
+                        messages.error(request, 'That email is already associated with an account.')
                 else:
                     messages.error(request, 'An invitation has already been sent to \'%s\'.' % email)
             else:
