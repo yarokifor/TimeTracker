@@ -256,8 +256,9 @@ def register(request):
 
 @login_required
 def send_registration(request):
+    context = dict()
     if request.method == 'GET':
-        pass
+        context['registrations'] = Registration.objects.all()
     
     if request.method == 'POST':
         emails = request.POST.get("emails")
@@ -282,7 +283,7 @@ def send_registration(request):
                     Registration(email = email, key_hash = key_hash).save()
 
                     msg = '''Hello,
-                    You've reviced an invitation to join Netsville's Time Tracker. Please click the link to registrator:
+                    You've reviced an invitation to join Netsville's Time Tracker. Please click the link to register:
                     
                     %s
                     '''%(user_url)
@@ -306,5 +307,5 @@ def send_registration(request):
             messages.info(request, '%d/%d emails were succfully sent.'%(successfully_delivered, len(emails_to_send)))
         else:
             messages.error(request, 'No emails were succfully valided and therefore there was no attemp to send email.') 
-    return render(request, 'send_registration.html')
+    return render(request, 'send_registration.html', context)
     

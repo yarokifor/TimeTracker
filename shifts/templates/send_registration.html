@@ -1,15 +1,27 @@
 {% extends "base.html" %}
 {% block title %}
+Invites
 {% endblock %}
 {% block main %}
 <div class="col-md-6">
+    <h3>Invite</h3>
     <form id="emails" action="/send_registration" method="POST">
-        {% csrf_token %}
-        <label for="emails">Emails:</label>
-        </br>
-        <textarea cols=32 rows=15  name="emails"></textarea>
-        </br>
-        <button class="btn btn-default" type="sumbit">Send invitations</button>
+        <div class="form-group">
+            {% csrf_token %}
+            <textarea name="emails" class="form-control" cols=32 rows=15 title="Sperate emails by a line break." placeholder="Sperate emails by a line break"></textarea>
+            </br>
+            <button class="btn btn-default" type="sumbit">Send invitations</button>
+        </div>
     </form>
+</div>
+<div class="col-md-6">
+    <h3>Current invitations</h3>
+    <ul class="list-group">
+    {% for registration in registrations %}
+        <li class="list-group-item">{{ registration.email }}</li>
+    {% empty %}
+        <li class="list-group-item">There are no invitations...</li>
+    {% endfor %}
+    </ul>
 </div>
 {% endblock %}
