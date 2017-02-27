@@ -157,6 +157,7 @@ def __get_days_in_week(year=None, week=None):
         week = timezone.now().isocalendar()[1]
 
     day_zero = datetime.datetime.strptime("%i %i 1"%(year, week), "%Y %W %w")
+    day_zero = timezone.make_aware(day_zero)
     days = []
     for day_number in range(7):
         days.append(day_zero + datetime.timedelta(days=day_number))
