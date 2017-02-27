@@ -277,7 +277,7 @@ def send_registration(request):
         for email in emails:
             if '@' in email:
                 if len(Registration.objects.filter(email = email)) <= 0:
-                    if len(User.objects.filter(email = email) <= 0):
+                    if len(User.objects.filter(email = email)) <= 0 :
                         #TODO: Add some salt
                         key = os.urandom(33)
                         key_hash = hashlib.sha512(key).digest()
