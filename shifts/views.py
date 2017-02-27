@@ -111,7 +111,8 @@ def export(request):
     day_shifts_and_hours = []
 
     for day in days_of_week:
-        shifts = Shift.objects.filter(user = user, start__time__year = day.year, start__time__month = day.month, start__time__day = day.day)
+        day_end = day + datetime.timedelta(days=1)
+        shifts = Shift.objects.filter(user = user, start__time__gte = day, start__time__lt = day_end)
         hours = __calculate_hours(shifts)
 
         if hours == None:
@@ -151,9 +152,9 @@ def __calculate_hours(shifts):
 def __get_days_in_week(year=None, week=None):
     '''Returns when a week starts and ends.'''
     if year == None:
-        year = datetime.datetime.now().year
+        year = timezone.now().year
     if week == None:
-        week = datetime.datetime.now().isocalendar()[1]
+        week = timezone.now().isocalendar()[1]
 
     day_zero = datetime.datetime.strptime("%i %i 1"%(year, week), "%Y %W %w")
     days = []
@@ -251,7 +252,7 @@ def register(request):
         else:
             registants[0].delete()
 
-        messages.info(request, 'Your account was succefully created. Please login.')
+        messages.info(request, 'Your account was successfully created. Please login.')
         return HttpResponseRedirect('/')
 
 @login_required
@@ -284,7 +285,7 @@ def send_registration(request):
                         Registration(email = email, key_hash = key_hash).save()
 
                         msg = ( 'Hello,'
-                                'You\'ve reviced an invitation to join Netsville\'s Time Tracker. Please click the link to register:'
+                                'You\'ve received an invitation to join Netsville\'s Time Tracker. Please click the link to register:'
                                 ''
                                 '%s'%(user_url))
 
