@@ -187,7 +187,7 @@ def profile(request):
 def register(request):
     context = dict()
     if request.user.is_authenticated == True:
-        messages.error(request, 'You can\'t registered when logged in.')
+        messages.error(request, 'You can\'t register while logged in.')
         return HttpResponseRedirect('/shifts')
     key = request.GET.get('key')
     if key == None:
@@ -285,9 +285,9 @@ def send_registration(request):
                         user_url = url % key.decode('utf-8')
                         Registration(email = email, key_hash = key_hash).save()
 
-                        msg = ( 'Hello,'
-                                'You\'ve received an invitation to join Netsville\'s Time Tracker. Please click the link to register:'
-                                ''
+                        msg = ( 'Hello,\r\n'
+                                'You\'ve received an invitation to join Netsville\'s Time Tracker. Please click the link to register:\r\n'
+                                '\r\n'
                                 '%s'%(user_url))
 
                         emails_to_send.append((
@@ -296,7 +296,7 @@ def send_registration(request):
                             'noreply@netsville.com',     #From address
                             [email]))                    #To address
                     else:
-                        messages.error(request, 'That email is already associated with an account.')
+                        messages.error(request, '\'%s\' is already associated with an account.'% email)
                 else:
                     messages.error(request, 'An invitation has already been sent to \'%s\'.' % email)
             else:
@@ -304,12 +304,12 @@ def send_registration(request):
 
         successfully_delivered = 0
         if len(emails_to_send) > 0: 
-            #try:
-            successfully_delivered = send_mass_mail(emails_to_send)
-            #except:
-            #    messages.error(request, 'There was an error sending emails')
+            try:
+                successfully_delivered = send_mass_mail(emails_to_send)
+            except:
+                messages.error(request, 'There was an error sending emails')
             messages.info(request, '%d/%d emails were succfully sent.'%(successfully_delivered, len(emails_to_send)))
         else:
-            messages.error(request, 'No emails were succfully valided and therefore there was no attemp to send email.') 
+            messages.error(request, 'No emails were successfully valided therefore there was no attempt to send email.') 
     return render(request, 'send_registration.html', context)
     
