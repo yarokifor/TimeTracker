@@ -169,18 +169,38 @@ def __get_days_in_week(year=None, week=None):
 def profile(request):
     context = dict()
     if request.method == 'POST':
-        auto_clock_out = request.POST.get("auto_clock_out")
-        if auto_clock_out == "None":
-            auto_clock_out = None
-        elif auto_clock_out != None:
-            try:
-                auto_clock_out = datetime.datetime.strptime(auto_clock_out,'%H:%M').time()
-            except ValueError:
+        event = request.POST.get('event')
+        if event == 'auto_clock_out':
+            auto_clock_out = request.POST.get("auto_clock_out")
+            if auto_clock_out == "None":
                 auto_clock_out = None
-                messages.error(request, "Invalid input.")
+            elif auto_clock_out != None:
+                try:
+                    auto_clock_out = datetime.datetime.strptime(auto_clock_out,'%H:%M').time()
+                except ValueError:
+                    auto_clock_out = None
+                    messages.error(request, "Invalid input.")
 
-        request.user.profile.auto_clock_out = auto_clock_out
-        request.user.profile.save()
+            request.user.profile.auto_clock_out = auto_clock_out
+            request.user.profile.save()
+        elif event == 'password':
+            return_error = HttpResponseRedirect('/profile')
+            password = request.POST.get('password')            
+            new_password = request.POST.get('new_password')
+            verified_password = request.POST.get('verified_password')
+            
+            __password_check(request, new_password, verified_password)
+            
+            if request.user.check_password(password) != True:
+                messages.error(request, 'Inncorrect login password.')
+
+            if len(messages.get_messages(request)) > 0:
+                return return_error
+
+            request.user.set_password(new_password)
+            request.user.save()
+
+            messages.info(request, 'Your password has been changed.')
 
     return render(request, "profile.html", context)
 
@@ -214,11 +234,8 @@ def register(request):
         email = request.POST.get('email')
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
-        
-        if password != verified_password:
-            messages.error(request, 'Your passwords do not match.')
-        if len(password) < 8:
-            messages.error(request, 'Your password must be greater than eight characters.')
+
+        __password_check(request, password, verified_password)
 
         if username == None or username == '':
             messages.error(request, 'No username was supplied.')
@@ -255,6 +272,12 @@ def register(request):
 
         messages.info(request, 'Your account was successfully created. Please login.')
         return HttpResponseRedirect('/')
+
+def __password_check(request, password, verified_password):
+        if password != verified_password:
+            messages.error(request, 'Your passwords do not match.')
+        if len(password) < 8:
+            messages.error(request, 'Your password must be greater than eight characters.')
 
 @login_required
 def send_registration(request):

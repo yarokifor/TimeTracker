@@ -5,18 +5,52 @@ Profile
 {% block main %}
     <div class="col-md-6">
         <h3>Profile for {{ request.user }}</h3>
-        <form action="/profile" method="POST">
-            {% csrf_token %}
-            <div class="input-group">
-                <span class="input-group-addon">Auto clock out</span>
-                <input  type="time" id="auto_clock_out" class="form-control" name="auto_clock_out" placeholder="{{ request.user.profile.auto_clock_out }}">
-                <div class="input-group-btn">
-                    {% if request.user.profile.auto_clock_out != None %}
-                        <button type="sumbit" class="btn btn-default" name="auto_clock_out" value="None">Disable</button>
-                    {% endif %}
-                    <button type="sumbit" class="btn btn-default">Set</button>
+        <div class="row">
+            <h4>Auto Clock Out</h4>
+
+            <form action="/profile" method="POST">
+                {% csrf_token %}
+                <label for="auto_clock_out" class="sr-only">Auto clock out</label>
+                <div class="input-group">
+                    <input  type="time" id="auto_clock_out" class="form-control" name="auto_clock_out" placeholder="{{ request.user.profile.auto_clock_out }}">
+                    <div class="input-group-btn">
+                        {% if request.user.profile.auto_clock_out != None %}
+                            <button type="sumbit" class="btn btn-default" name="auto_clock_out" value="None">Disable</button>
+                        {% endif %}
+                        <button type="sumbit" class="btn btn-default" name="event" value="auto_clock_out">Set</button>
+                    </div>
                 </div>
-            </div>
-        </form>
+            </form>
+        </div>
+           
+        <div class="row"> 
+            <h4>Password</h4>
+
+            <form action="/profile" method="POST">
+                {% csrf_token %}
+                <div class="form-group">
+
+                    <label for="password" class="sr-only">Current Password</label>
+                    <div class="input-group">
+                        <span class="input-group-addon">Current Password</span>
+                        <input id="password" class="form-control" type="password" placeholder="" name="password">
+                    </div>
+
+                    <label for="password" class="sr-only">New Password</label>
+                    <div class="input-group">
+                        <span class="input-group-addon">New Password</span>
+                        <input id="password" class="form-control" type="password" placeholder="" name="new_password">
+                    </div>
+
+                    <label for="verified_password" class="sr-only">New Password Verification</label>
+                    <div class="input-group">
+                        <span class="input-group-addon">New Password Again</span>
+                        <input id="verified_password" class="form-control" type="password" placeholder="" name="verified_password">
+                    </div>
+
+                    <button type="sumbit" class="btn btn-default" name="event" value="password">Change Password</button>
+                </div>
+            </form>
+        </div>
     </div>
 {% endblock %}
