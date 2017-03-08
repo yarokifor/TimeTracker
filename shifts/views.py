@@ -246,12 +246,14 @@ def register(request):
         
         if email == None or email == '':
             messages.error(request, 'No email was supplied.')
-        elif len(User.objects.filter(email = email)) > 0:
-            messages.error(request, 'This email is already in use. Invalid key.')
-            registants[0].delete()
-            return HttpResponseRedirect('/')
-        elif email != registants[0].email:
-            messages.error(request, 'This email doesn\'t match the key\'s email contact. Please try again.')
+        else:
+            email = email.lower()
+            if len(User.objects.filter(email = email)) > 0:
+                messages.error(request, 'This email is already in use. Invalid registration key.')
+                registants[0].delete()
+                return HttpResponseRedirect('/')
+            elif email != registants[0].email:
+                messages.error(request, 'This email doesn\'t match the key\'s email contact. Please try again.')
        
         #TODO: Make sure messages are errors
         if len(messages.get_messages(request)) > 0:
@@ -298,6 +300,7 @@ def send_registration(request):
 
         emails_to_send = list()
         for email in emails:
+            email = email.lower()
             if '@' in email:
                 if len(Registration.objects.filter(email = email)) <= 0:
                     if len(User.objects.filter(email = email)) <= 0 :
@@ -308,10 +311,9 @@ def send_registration(request):
                         user_url = url % key.decode('utf-8')
                         Registration(email = email, key_hash = key_hash).save()
 
-                        msg = ( 'Hello,\r\n'
+                        msg = ( 'Hello,\r\n\r\n'
                                 'You\'ve received an invitation to join Netsville\'s Time Tracker. Please click the link to register:\r\n'
-                                '\r\n'
-                                '%s'%(user_url))
+                                '\t%s'%(user_url))
 
                         emails_to_send.append((
                             'Time Tracker Registration', #Subject
