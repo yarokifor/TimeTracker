@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
-from .models import Profile, Shift, Event
+from .models import Profile, Shift, Event, Registration
 
 class ProfileInline(admin.StackedInline):
     model = Profile
@@ -25,7 +25,9 @@ class ShiftAdmin(admin.ModelAdmin):
         return obj.end.time if obj.end != None else None
     end_time.short_description = 'End'
         
-        
+@admin.register(Registration)
+class RegistrationAdmin(admin.ModelAdmin):
+   list_display = ('email', )
 
 # Register your models here.
 admin.site.register(Profile)
