@@ -2,6 +2,8 @@ from django.db import models
 from django.db import DataError 
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
+from django.conf import settings
+
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -36,6 +38,11 @@ class Event(models.Model):
         return Event.objects.filter(user = user).order_by('time').last()
         
     def save(self, *args, **kwargs):
+        try:
+            if(settings.DISABLE_CLOCK_CHECK == True ):
+                super(Event, self).save(*args, **kwargs)
+        except:
+            pass
         last_event = self.last_event(self.user)
         if last_event != None:
             last_event = last_event.event
