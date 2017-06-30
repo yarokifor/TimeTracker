@@ -11,7 +11,7 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument("--start_day", nargs=1, required=True, help='MM/DD/YYYY')
         parser.add_argument("--start_time", nargs=1, default=["09:00"], help='HH:MM')
-        parser.add_argument("--num_hours", nargs=1, type=int, required=True)
+        parser.add_argument("--num_hours", nargs=1, type=float, required=True)
         parser.add_argument("--username", nargs=1, required=True)
 
 
@@ -40,7 +40,7 @@ class Command(BaseCommand):
 
         self.stdout.write("Checking for conflicting events...")
         
-        end = start + datetime.timedelta(hours = int(options['num_hours'][0]))
+        end = start + datetime.timedelta(hours = options['num_hours'][0])
 
         if len(Event.objects.filter(user = user, time__gte = start, time__lte = end )) != 0:
             raise CommandError('User has event between the start and end of pesudo shift.')
