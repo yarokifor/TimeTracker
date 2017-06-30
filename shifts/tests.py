@@ -87,6 +87,7 @@ class Shift_View(TransactionTestCase):
     def test_no_data_post_invalid_event(self): 
         invalid_events = ['OUT','BST','BEN']
         for event in invalid_events:
+            print(event)
             with self.assertRaises(DataError):
                 self.client.post('/shifts', {'event': event})
 
@@ -222,7 +223,7 @@ class Profile_View(TransactionTestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_set(self):
-        response = self.client.post('/profile',{'auto_clock_out':'17:00'})
+        response = self.client.post('/profile',{'event':'auto_clock_out','auto_clock_out':'17:00'})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(self.user.profile.auto_clock_out, datetime.time(17, 0))
           
