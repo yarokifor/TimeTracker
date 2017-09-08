@@ -51,6 +51,9 @@ class Event(models.Model):
 
         super(Event, self).save(*args, **kwargs)
 
+    def __str__(self):
+        return "%d %s: %s @%s"%(self.id, self.user.username, self.event, self.time.strftime("%x %X"))
+
 class Shift(models.Model):
     class Meta:
         permissions = (('can_view_others','Can veiw others shifts and events'),)
