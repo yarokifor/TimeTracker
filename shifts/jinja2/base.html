@@ -1,0 +1,46 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="/static/css/layout.css">
+        <link rel="stylesheet" href="/static/css/style.css">
+        <script type="text/javascript" src="/static/js/testing.js"></script>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>{% block title %}Time{% endblock %}</title>
+    </head>
+    <body>
+        <header>
+            <!-- Nav -->
+<!--            {% if user.is_authenticated %}
+            <nav>
+                <button id="shift" class="nav" herf="/shifts">Shifts</button>
+                <button id="export" class="nav" herf="/export">Export</button>
+                <button id="profile" class="nav" herf="/profile">Profile</button>
+            </nav>
+            {% endif %}-->
+        <!-- Header -->
+        <h1>Netsville</h1>
+        
+        <!-- Messages -->
+        <div id="messages">
+        {% if messages %}
+            {% for message in messages %}
+                <div id="message">
+                    <h2>{{ message.level_tag }}: {{ message }}</h2>
+                </div>
+            {% endfor %}
+        {% endif %}
+        </div>
+
+        </header>
+        
+
+        <!-- Main -->
+        <div id="main">
+            {% block main %}
+            {% endblock %}
+        </div>
+        <!-- Terminal Input -->
+        {% block input %}
+        {% endblock %}
+    </body>
+</html>
+

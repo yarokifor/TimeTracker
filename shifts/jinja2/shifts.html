@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Shifts{% endblock %}
+
+{% block main %}
+            <div id="clock">
+            <form action="/shifts" method="POST">
+                {{ csrf_input }}
+                {% for choice in event_choices %}
+                    <button type="sumbit" {% if not choice.0 in possible_events %} disabled=true{% endif %} name="event" value="{{ choice.0 }}">{{ choice.0 }}</button>
+                {% endfor %}
+            </form>
+            </div>
+                {% if last_event == None %}
+                    Welcome new user!
+                {% else %}
+                    <ul id="event_log">
+                    {% for event in lastest_events[::-1][:5] %}
+                        <li>{{ event.event }} @{{ event.time.strftime('%b. %-d, %y, %I:%M %p %Z') }}</li>
+                    {% endfor %}
+                    </ul>
+                {% endif %}
+            {% if last_shift != None %}
+                Tasks:
+                <ul class="list-group">
+                {% for task in tasks_completed[::-1] %}
+                    <li class="list-group-item">{{task}}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+{% endblock %}
+
+{% block input %}
+<form id="terminal_input" action="/shifts" method="POST">
+{{ csrf_input }}
+<input autocomplete="off" type="text" name="desc" placeholder="Task"></input>
+<button type="sumbit" {% if last_shift.out != None %}disabled{% endif %}name="event" value="task">Submit</button>
+</form>
+{% endblock %}

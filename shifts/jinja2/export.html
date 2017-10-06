@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Export{% endblock %}
+{% block main %}
+<h3 title="Year {{ year }} Week {{ week }}">{{ day_shifts_and_hours.0.0.date() }} to<br> {{ day_shifts_and_hours.6.0.date() }}</h3>
+
+{% if perms.auth.can_view_others and false %}
+    <h4>
+        <div>
+            <a>Download</a>
+            <button type="button">
+                Veiwing {{view_user.username}} <span></span>
+                <span>Select user</span>
+            </button>
+            <ul>
+                {% for user in users %}
+                    <li><a href="/export?year={{ year }}&week={{ week }}&user={{user.id}}">{{ user.username }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </h4> 
+{% endif %} 
+        <ul class="days">
+        <li>Day | Hours</li>
+        
+        {% for day,shifts,hours in day_shifts_and_hours %}
+            <li class="foldable">
+            <span title="{{ day.date() }}">{{ day.strftime('%A') }}</span> {{ '%.2f'%hours }} <input type="checkbox" checked/>
+            <ul class="tasks">
+                {% for shift in shifts %}
+                    {% for task in shift.tasks_completed.split(',') %}
+                        <li>{{ task }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+            </li>
+        {% endfor %}
+        <li>
+        Total: {{ '%.2f'%total_hours }}
+        </li>
+</div>
+<div>
+<ul>
+<li><a href="{{request.path}}?year={{ last_week.0 }}&week={{ last_week.1 }}&user={{view_user.id}}"><span></span></a></li>
+<li><a href="{{request.path}}?year={{ next_week.0 }}&week={{ next_week.1 }}&user={{view_user.id}}"><span></span></a></li>
+</ul>
+{% endblock %}
