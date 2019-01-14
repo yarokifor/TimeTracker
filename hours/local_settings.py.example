@@ -9,3 +9,26 @@ DEBUG = True
 #Adjust for domains
 ALLOWED_HOSTS = ["127.0.0.1"]
 
+TIME_ZONE = 'America/New_York'
+
+USE_TZ = True
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'timetracker',
+        'USER': 'timetracker',
+        'PASSWORD': '',
+        'HOST': '127.0.0.1',
+        'PORT': '3306',
+    }
+}
+
+EMAIL_HOST = 'smtp.domain.com'
+EMAIL_PORT = '25'
+EMAIL_TIMEOUT = 30
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+DISABLE_CLOCK_CHECK = False
+

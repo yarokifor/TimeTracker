@@ -20,7 +20,7 @@ import base64
 
 def index(request):
     context = dict()
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         messages.warning(request,"You are already signed in.")
         return HttpResponseRedirect("/shifts")
     return render(request, 'login.html', context)
@@ -50,6 +50,7 @@ def shifts(request):
 
     if request.method == 'POST':
         event = request.POST.get("event")
+        newtime = request.POST.get("newtime")
         if event == "task" and last_shift != None:
             tasks = last_shift.tasks_completed
             task = bleach.clean(request.POST['desc']).replace('`','\'')
@@ -58,6 +59,17 @@ def shifts(request):
             else:
                 last_shift.tasks_completed = '%s,`%s`' % (tasks, task)
             last_shift.save()
+        elif event == "update" and newtime != None:
+            newtime_dt = datetime.datetime.strptime(newtime,'%Y-%m-%dT%H:%M:%S')
+            other_events = Event.objects.filter(user = request.user, time__gt = newtime_dt)
+            if len(other_events) > 1:
+                messages.error(request, "Updated time cannot be earlier than any previous event.")
+            elif newtime_dt > datetime.datetime.now():
+                messages.error(request, "Updated time cannot be in the future.")
+            else:
+                last_event.time = newtime
+                last_event.save()
+                messages.info(request, "Last event time modified.")
         elif event in Event.REQUIRED_EVENT.keys():
             last_event = Event(time = timezone.now(), event = event, user = request.user)
             last_event.save()
@@ -156,6 +168,12 @@ def __get_days_in_week(year=None, week=None):
     if week == None:
         week = timezone.now().isocalendar()[1]
 
+    # Determine if Jan 1st is Sun or Mon (i.e. is "week 1")
+    # Otherwise, it's part of "week 0" and we have to -1 from week
+    jan_first_dt = datetime.datetime.strptime(str(year)+"/01/01", "%Y/%m/%d")
+    jan_first_day = int(jan_first_dt.strftime("%w"))
+    if (jan_first_day > 1):
+        week = week - 1
     day_zero = datetime.datetime.strptime("%i %i 1"%(year, week), "%Y %W %w")
     day_zero = timezone.make_aware(day_zero)
     days = []

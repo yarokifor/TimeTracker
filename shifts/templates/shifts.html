@@ -9,7 +9,7 @@
                 {% csrf_token %}
                 <div class="btn-group">
                     {% for choice in event_choices %}
-                        <button type="sumbit" class="btn btn-default"{% if not choice.0 in possible_events %} disabled=true{% endif %} name="event" value="{{ choice.0 }}">{{ choice.1 }}</button>
+                        <button type="submit" class="btn btn-default"{% if not choice.0 in possible_events %} disabled=true{% endif %} name="event" value="{{ choice.0 }}">{{ choice.1 }}</button>
                     {% endfor %}
                 </div>
             </form>
@@ -18,7 +18,13 @@
                 {% else %}
                     <ul class="list-group">
                     {% for event in lastest_events|slice:"::-1"|slice:":5" %}
-                        <li class="list-group-item">{{ event.get_event_display}} @{{ event.time }}</li>
+                        <li class="list-group-item">
+                        {% if forloop.counter == 1 %}
+                            <form action="/shifts" method="POST">{% csrf_token %}{{ event.get_event_display }} @ <input type="datetime-local" name="newtime" value="{{ event.time|date:"Y-m-d\TH:i:s" }}"><button type="submit" class="btn btn-default" name="event" value="update">update</button></form>
+                        {% else %}
+                            {{ event.get_event_display}} @ {{ event.time }}
+                        {% endif %}
+                        </li>
                     {% endfor %}
                     </ul>
                 {% endif %}
@@ -30,7 +36,7 @@
                 <div class="input-group">
                     <input class="form-control" autocomplete="off" type="text" name="desc" placeholder="Task"></input>
                     <span class="input-group-btn">
-                        <button class="btn btn-default" type="sumbit" {% if last_shift.out != None %}disabled{% endif %}name="event" value="task">Submit</button>
+                        <button class="btn btn-default" type="submit" {% if last_shift.out != None %}disabled{% endif %}name="event" value="task">Submit</button>
                     </span>
                 </div>
             </form>

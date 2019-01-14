@@ -1,0 +1,4 @@
+Django>=1.11.6
+configparser>=3.5.0
+mysql>=0.0.2
+bleach>=3.0.2
