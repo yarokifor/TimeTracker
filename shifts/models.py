@@ -56,7 +56,7 @@ class Event(models.Model):
 
 class Shift(models.Model):
     class Meta:
-        permissions = (('can_view_others','Can veiw others shifts and events'),)
+        permissions = (('can_view_others','Can view others shifts and events'),)
 
     user = models.ForeignKey(User, on_delete = models.CASCADE)
     start = models.ForeignKey(Event, related_name = "start",on_delete = models.CASCADE)
